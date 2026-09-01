@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <sistema>
-    <administradores/>
+    <administradores>
+        <administrador id="999">
+            <clave>clave123</clave>
+            <rol>ADMINISTRADOR</rol>
+        </administrador>
+    </administradores>
     <funcionarios>
         <funcionario id="111">
             <clave>111</clave>
@@ -14,6 +19,25 @@
             <descripcion>Sala</descripcion>
         </categoria>
     </categorias>
-    <recursos/>
-    <reservas/>
+    <recursos>
+        <recurso id="R-001">
+            <descripcion>Sala 1 primer piso</descripcion>
+            <categoria>CAT-001</categoria>
+        </recurso>
+        <recurso id="R-002">
+            <descripcion>Sala 2 segundo piso</descripcion>
+            <categoria>CAT-001</categoria>
+        </recurso>
+    </recursos>
+    <reservas>
+        <reserva id="b80bb538-a609-48bc-afd3-4b22629c6b22">
+            <actividad>Correr</actividad>
+            <fecha>2026-09-03</fecha>
+            <horaInicio>07:00</horaInicio>
+            <horaFin>10:00</horaFin>
+            <funcionario>111</funcionario>
+            <recursos>R-001</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+    </reservas>
 </sistema>
