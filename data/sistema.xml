@@ -39,5 +39,32 @@
             <recursos>R-001</recursos>
             <estado>ACTIVADA</estado>
         </reserva>
+        <reserva id="51507b2c-d352-4991-8ed6-428a4cb6e717">
+            <actividad>jugar</actividad>
+            <fecha>2026-09-05</fecha>
+            <horaInicio>08:00</horaInicio>
+            <horaFin>11:00</horaFin>
+            <funcionario>111</funcionario>
+            <recursos>R-001</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="0f73fcbc-4ec4-492f-a8dd-eaf704245474">
+            <actividad>comer</actividad>
+            <fecha>2026-10-01</fecha>
+            <horaInicio>09:00</horaInicio>
+            <horaFin>10:00</horaFin>
+            <funcionario>111</funcionario>
+            <recursos>R-001</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="4c6f4a09-959e-4688-9040-6e0fc524a905">
+            <actividad>dormir</actividad>
+            <fecha>2026-09-03</fecha>
+            <horaInicio>08:00</horaInicio>
+            <horaFin>09:00</horaFin>
+            <funcionario>111</funcionario>
+            <recursos>R-002</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
     </reservas>
 </sistema>

@@ -30,7 +30,6 @@ public class MainShellController {
 
         model.setUsuario(Sesion.getUsuario());
 
-        // Pantalla real de Reservas
         view.agregarPestana("Reservas", this::construirReservas);
 
         if (Sesion.getUsuario().getRol() == Rol.ADMINISTRADOR) {

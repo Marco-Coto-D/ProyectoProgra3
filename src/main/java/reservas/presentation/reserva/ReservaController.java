@@ -22,10 +22,7 @@ public class ReservaController {
     private final RecursoRepositorio recursoRepositorio;
     private final CategoriaRecursoRepositorio categoriaRepositorio;
 
-    public ReservaController(ReservaView view, ReservaModel model,
-                             ReservaRepositorio reservaRepositorio,
-                             RecursoRepositorio recursoRepositorio,
-                             CategoriaRecursoRepositorio categoriaRepositorio) {
+    public ReservaController(ReservaView view, ReservaModel model, ReservaRepositorio reservaRepositorio, RecursoRepositorio recursoRepositorio, CategoriaRecursoRepositorio categoriaRepositorio) {
         this.view = view;
         this.model = model;
         this.reservaRepositorio = reservaRepositorio;
@@ -65,7 +62,7 @@ public class ReservaController {
             return;
         }
 
-        // Recursos ya comprometidos ese día, en un horario que se solapa
+
         Set<String> idsOcupados = reservaRepositorio.listarTodas().stream()
                 .filter(r -> r.getEstado() == EstadoReserva.ACTIVADA)
                 .filter(r -> r.getFecha().equals(fecha))
@@ -87,7 +84,7 @@ public class ReservaController {
                 categoriasSinDisponibilidad.add(categoria.getDescripcion());
             } else {
                 recursosAsignados.add(disponible);
-                idsOcupados.add(disponible.getId()); // no asignarlo dos veces en la misma reserva
+                idsOcupados.add(disponible.getId());
             }
         }
 

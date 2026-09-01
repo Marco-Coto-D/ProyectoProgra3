@@ -10,8 +10,7 @@ public class AutenticacionService {
     private final FuncionarioRepositorio funcionarioRepositorio;
     private final AdministradorRepositorio administradorRepositorio;
 
-    public AutenticacionService(FuncionarioRepositorio funcionarioRepositorio,
-                                AdministradorRepositorio administradorRepositorio) {
+    public AutenticacionService(FuncionarioRepositorio funcionarioRepositorio, AdministradorRepositorio administradorRepositorio) {
         this.funcionarioRepositorio = funcionarioRepositorio;
         this.administradorRepositorio = administradorRepositorio;
     }
