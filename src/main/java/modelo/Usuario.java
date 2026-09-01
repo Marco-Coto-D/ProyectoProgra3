@@ -1,15 +1,25 @@
 package modelo;
 
-import java.util.Objects;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlID;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Usuario {
+    @XmlID
+    @XmlAttribute
     protected String id;
     protected String clave;
     protected Rol rol;
 
+    protected Usuario(){
+
+    }
+
     protected Usuario(String id, String clave, Rol rol){
         this.id = id;
-        this.clave = id;
+        this.clave = clave;
         this.rol = rol;
     }
 

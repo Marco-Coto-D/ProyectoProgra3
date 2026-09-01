@@ -1,29 +1,52 @@
 package modelo;
 
+
+import jakarta.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import persistencia.xml.LocalDateAdapter;
+import persistencia.xml.LocalTimeAdapter;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Reserva {
 
+    @XmlID
+    @XmlAttribute
     private String id;
+
     private String actividad;
+
+    @XmlJavaTypeAdapter(LocalDateAdapter.class)
     private LocalDate fecha;
+
+    @XmlJavaTypeAdapter(LocalTimeAdapter.class)
     private LocalTime horaInicio;
+
+    @XmlJavaTypeAdapter(LocalTimeAdapter.class)
     private LocalTime horaFin;
+
+    @XmlIDREF
     private Funcionario funcionario;
+
+    @XmlIDREF
     private List<Recurso> recursos;
+
     private EstadoReserva estado;
 
+    public Reserva() {
+
+    }
     public Reserva (String id, String actividad, LocalDate fecha, LocalTime horaInicio, LocalTime horaFin, Funcionario funcionario){
         this.id = id;
         this.actividad = actividad;
         this.fecha = fecha;
         this.horaInicio = horaInicio;
         this.horaFin = horaFin;
+        this.funcionario = funcionario;
         this.recursos = new ArrayList<>();
         this.estado = EstadoReserva.ACTIVADA;
     }

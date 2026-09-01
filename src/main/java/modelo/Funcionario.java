@@ -1,9 +1,18 @@
 package modelo;
 
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Funcionario extends Usuario{
 
     private String nombre;
     private String telefono;
+
+    public Funcionario() {
+
+    }
+
 
     public Funcionario(String id, String clave, String nombre, String telefono){
         super(id, clave, Rol.FUNCIONARIO);

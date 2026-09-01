@@ -1,9 +1,22 @@
 package modelo;
 
+
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlID;
+
+@XmlAccessorType(XmlAccessType.FIELD)
 public class CategoriaRecurso {
 
+    @XmlID
+    @XmlAttribute
     private String id;
     private String descripcion;
+
+    public CategoriaRecurso() {
+
+    }
 
     public CategoriaRecurso(String id, String descripcion){
         this.id = id;
