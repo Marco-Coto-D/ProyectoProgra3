@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sistema>
+    <administradores/>
+    <funcionarios>
+        <funcionario id="111">
+            <clave>111</clave>
+            <rol>FUNCIONARIO</rol>
+            <nombre>Fabian</nombre>
+            <telefono>8888-8888</telefono>
+        </funcionario>
+    </funcionarios>
+    <categorias>
+        <categoria id="CAT-001">
+            <descripcion>Sala</descripcion>
+        </categoria>
+    </categorias>
+    <recursos/>
+    <reservas/>
+</sistema>
