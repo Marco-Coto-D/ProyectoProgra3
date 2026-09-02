@@ -1,6 +1,7 @@
 package reservas;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 
 import reservas.data.xml.AdministradorRepositorioXml;
@@ -14,17 +15,18 @@ import reservas.presentation.login.LoginController;
 import reservas.presentation.login.LoginModel;
 import reservas.presentation.login.LoginView;
 
-//PRUEBA
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        Platform.setImplicitExit(false);
+
         doLogin();
 
         if (Sesion.isLoggedIn()) {
             doRun(primaryStage);
         } else {
-            System.exit(0);
+            Platform.exit();
         }
     }
 

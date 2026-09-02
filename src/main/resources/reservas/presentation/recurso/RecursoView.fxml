@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <top>
+        <VBox spacing="5">
+            <TextField fx:id="txtId" promptText="Id / número de activo"/>
+            <TextField fx:id="txtDescripcion" promptText="Descripción"/>
+            <ComboBox fx:id="cmbCategoria" promptText="Categoría"/>
+            <HBox spacing="10">
+                <Button fx:id="btnGuardar" text="Guardar"/>
+                <Button fx:id="btnBorrar" text="Borrar seleccionado"/>
+                <Button fx:id="btnLimpiar" text="Limpiar"/>
+            </HBox>
+            <Label fx:id="lblError" style="-fx-text-fill: red;"/>
+        </VBox>
+    </top>
+    <center>
+        <VBox spacing="5">
+            <HBox spacing="10">
+                <Label text="Filtrar por categoría:"/>
+                <ComboBox fx:id="cmbFiltro" promptText="Todas"/>
+            </HBox>
+            <TableView fx:id="tablaRecursos">
+                <columns>
+                    <TableColumn fx:id="colId" text="Id"/>
+                    <TableColumn fx:id="colDescripcion" text="Descripción"/>
+                    <TableColumn fx:id="colCategoria" text="Categoría"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane>

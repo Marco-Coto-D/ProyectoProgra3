@@ -11,6 +11,9 @@ import reservas.data.xml.CategoriaRecursoRepositorioXml;
 import reservas.presentation.reserva.ReservaController;
 import reservas.presentation.reserva.ReservaModel;
 import reservas.presentation.reserva.ReservaView;
+import reservas.presentation.recurso.RecursoController;
+import reservas.presentation.recurso.RecursoModel;
+import reservas.presentation.recurso.RecursoView;
 
 public class MainShellController {
 
@@ -33,7 +36,7 @@ public class MainShellController {
         view.agregarPestana("Reservas", this::construirReservas);
 
         if (Sesion.getUsuario().getRol() == Rol.ADMINISTRADOR) {
-            view.agregarPestana("Recursos", () -> new Label("..."));
+            view.agregarPestana("Recursos", this::construirRecursos);
             view.agregarPestana("Funcionarios", () -> new Label("..."));
             view.agregarPestana("Categorías", () -> new Label("..."));
         }
@@ -54,5 +57,19 @@ public class MainShellController {
         );
 
         return reservaView.getRoot();
+    }
+
+    private Parent construirRecursos() {
+        RecursoView recursoView = new RecursoView();
+        RecursoModel recursoModel = new RecursoModel();
+
+        new RecursoController(
+                recursoView,
+                recursoModel,
+                new RecursoRepositorioXml(),
+                new CategoriaRecursoRepositorioXml()
+        );
+
+        return recursoView.getRoot();
     }
 }

@@ -66,5 +66,14 @@
             <recursos>R-002</recursos>
             <estado>ACTIVADA</estado>
         </reserva>
+        <reserva id="b111091b-f9e9-4e51-91d1-4cd7472af761">
+            <actividad>gym </actividad>
+            <fecha>2026-09-02</fecha>
+            <horaInicio>17:00</horaInicio>
+            <horaFin>19:00</horaFin>
+            <funcionario>111</funcionario>
+            <recursos>R-001</recursos>
+            <estado>CANCELADA</estado>
+        </reserva>
     </reservas>
 </sistema>
