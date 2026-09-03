@@ -4,7 +4,9 @@ import reservas.data.interfaces.CategoriaRecursoRepositorio;
 import reservas.data.interfaces.RecursoRepositorio;
 import reservas.logic.CategoriaRecurso;
 import reservas.logic.Recurso;
+import reservas.util.PdfUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecursoController {
@@ -53,6 +55,24 @@ public class RecursoController {
         recursoRepositorio.borrar(seleccionado.getId());
         model.setError("");
         cargarDatos();
+    }
+
+    public void print() {
+        if (model.getRecursos().isEmpty()) {
+            model.setError("No hay recursos para exportar");
+            return;
+        }
+        List<String> encabezados = List.of("Id", "Descripción", "Categoría");
+        List<List<String>> filas = new ArrayList<>();
+        for (Recurso r : model.getRecursos()) {
+            filas.add(List.of(r.getId(), r.getDescripcion(), r.getCategoria().getDescripcion()));
+        }
+        try {
+            PdfUtil.generar("Recursos", encabezados, filas);
+            model.setError("");
+        } catch (Exception e) {
+            model.setError("Error al generar PDF: " + e.getMessage());
+        }
     }
 
     public void buscarPorCategoria(CategoriaRecurso categoria) {

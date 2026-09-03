@@ -5,6 +5,12 @@
 <BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
     <top>
         <VBox spacing="5">
+            <HBox spacing="10">
+                <TextField fx:id="txtFrase"
+                           promptText="Describí la reserva (ej: reunión mañana de 9 a 11, necesito sala y proyector)"
+                           HBox.hgrow="ALWAYS"/>
+                <Button fx:id="btnExtraer" text="Extraer con IA"/>
+            </HBox>
             <TextField fx:id="txtActividad" promptText="Actividad"/>
             <DatePicker fx:id="dpFecha"/>
             <ComboBox fx:id="cmbHoraInicio" promptText="Hora inicio"/>
@@ -14,6 +20,7 @@
                 <Button fx:id="btnReservar" text="Reservar"/>
                 <Button fx:id="btnCancelar" text="Cancelar reserva seleccionada"/>
                 <Button fx:id="btnLimpiar" text="Limpiar"/>
+                <Button fx:id="btnPdf" text="Generar PDF"/>
             </HBox>
             <Label fx:id="lblError" style="-fx-text-fill: red;"/>
         </VBox>

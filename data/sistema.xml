@@ -7,6 +7,12 @@
         </administrador>
     </administradores>
     <funcionarios>
+        <funcionario id="222">
+            <clave>222</clave>
+            <rol>FUNCIONARIO</rol>
+            <nombre>Marco</nombre>
+            <telefono>9999-9999</telefono>
+        </funcionario>
         <funcionario id="111">
             <clave>111</clave>
             <rol>FUNCIONARIO</rol>
@@ -74,6 +80,42 @@
             <funcionario>111</funcionario>
             <recursos>R-001</recursos>
             <estado>CANCELADA</estado>
+        </reserva>
+        <reserva id="3a3a1d5d-d2f1-4531-b226-6512c0daab85">
+            <actividad>futbol</actividad>
+            <fecha>2026-09-17</fecha>
+            <horaInicio>10:00</horaInicio>
+            <horaFin>12:00</horaFin>
+            <funcionario>111</funcionario>
+            <recursos>R-001</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="92cd2ada-0b08-4584-b47a-b40999893c2b">
+            <actividad>comer</actividad>
+            <fecha>2026-09-03</fecha>
+            <horaInicio>07:00</horaInicio>
+            <horaFin>08:00</horaFin>
+            <funcionario>222</funcionario>
+            <recursos>R-002</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="b8503035-0b9d-4407-a625-100f50b2d2f4">
+            <actividad>basket</actividad>
+            <fecha>2026-09-03</fecha>
+            <horaInicio>10:00</horaInicio>
+            <horaFin>11:00</horaFin>
+            <funcionario>111</funcionario>
+            <recursos>R-001</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="fe0435f0-c916-4398-a0de-f73d32739a6a">
+            <actividad>gym</actividad>
+            <fecha>2026-09-03</fecha>
+            <horaInicio>09:00</horaInicio>
+            <horaFin>10:00</horaFin>
+            <funcionario>222</funcionario>
+            <recursos>R-002</recursos>
+            <estado>ACTIVADA</estado>
         </reserva>
     </reservas>
 </sistema>

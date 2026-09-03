@@ -20,7 +20,6 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         Platform.setImplicitExit(false);
-
         doLogin();
 
         if (Sesion.isLoggedIn()) {

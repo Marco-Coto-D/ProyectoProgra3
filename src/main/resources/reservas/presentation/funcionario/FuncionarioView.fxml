@@ -5,9 +5,9 @@
 <BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
     <top>
         <VBox spacing="5">
-            <TextField fx:id="txtId" promptText="Id / número de activo"/>
-            <TextField fx:id="txtDescripcion" promptText="Descripción"/>
-            <ComboBox fx:id="cmbCategoria" promptText="Categoría"/>
+            <TextField fx:id="txtId" promptText="Id"/>
+            <TextField fx:id="txtNombre" promptText="Nombre"/>
+            <TextField fx:id="txtTelefono" promptText="Teléfono"/>
             <HBox spacing="10">
                 <Button fx:id="btnGuardar" text="Guardar"/>
                 <Button fx:id="btnBorrar" text="Borrar seleccionado"/>
@@ -20,14 +20,14 @@
     <center>
         <VBox spacing="5">
             <HBox spacing="10">
-                <Label text="Filtrar por categoría:"/>
-                <ComboBox fx:id="cmbFiltro" promptText="Todas"/>
+                <TextField fx:id="txtBusqueda" promptText="Buscar por id o nombre"/>
+                <Button fx:id="btnBuscar" text="Buscar"/>
             </HBox>
-            <TableView fx:id="tablaRecursos">
+            <TableView fx:id="tablaFuncionarios">
                 <columns>
                     <TableColumn fx:id="colId" text="Id"/>
-                    <TableColumn fx:id="colDescripcion" text="Descripción"/>
-                    <TableColumn fx:id="colCategoria" text="Categoría"/>
+                    <TableColumn fx:id="colNombre" text="Nombre"/>
+                    <TableColumn fx:id="colTelefono" text="Teléfono"/>
                 </columns>
             </TableView>
         </VBox>

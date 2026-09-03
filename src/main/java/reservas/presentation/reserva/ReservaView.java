@@ -12,10 +12,14 @@ import reservas.logic.Reserva;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 public class ReservaView implements PropertyChangeListener {
 
+    @FXML private TextField txtFrase;
+    @FXML private Button btnExtraer;
     @FXML private TextField txtActividad;
     @FXML private DatePicker dpFecha;
     @FXML private ComboBox<LocalTime> cmbHoraInicio;
@@ -24,6 +28,7 @@ public class ReservaView implements PropertyChangeListener {
     @FXML private Button btnReservar;
     @FXML private Button btnCancelar;
     @FXML private Button btnLimpiar;
+    @FXML private Button btnPdf;
     @FXML private Label lblError;
     @FXML private TableView<Reserva> tablaReservas;
     @FXML private TableColumn<Reserva, String> colActividad;
@@ -56,12 +61,14 @@ public class ReservaView implements PropertyChangeListener {
     }
 
     public void setController(ReservaController controller) {
+        btnExtraer.setOnAction(e -> controller.extraerConIA(txtFrase.getText()));
         btnReservar.setOnAction(e -> controller.crear(
                 txtActividad.getText(), dpFecha.getValue(),
                 cmbHoraInicio.getValue(), cmbHoraFin.getValue(),
                 listCategorias.getSelectionModel().getSelectedItems()));
         btnCancelar.setOnAction(e -> controller.cancelar(tablaReservas.getSelectionModel().getSelectedItem()));
         btnLimpiar.setOnAction(e -> limpiarFormulario());
+        btnPdf.setOnAction(e -> controller.print());
     }
 
     public void setModel(ReservaModel model) {
@@ -83,6 +90,28 @@ public class ReservaView implements PropertyChangeListener {
         colEstado.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getEstado().toString()));
 
         tablaReservas.setItems(model.getMisReservas());
+    }
+
+    public void setBtnExtraerDeshabilitado(boolean valor) {
+        btnExtraer.setDisable(valor);
+    }
+
+    public void llenarDesdeIA(String actividad, LocalDate fecha,
+                              LocalTime horaInicio, LocalTime horaFin,
+                              List<CategoriaRecurso> categorias) {
+        txtActividad.setText(actividad);
+        dpFecha.setValue(fecha);
+        cmbHoraInicio.setValue(horaInicio);
+        cmbHoraFin.setValue(horaFin);
+        listCategorias.getSelectionModel().clearSelection();
+        for (CategoriaRecurso cat : categorias) {
+            for (int i = 0; i < listCategorias.getItems().size(); i++) {
+                if (listCategorias.getItems().get(i).getId().equals(cat.getId())) {
+                    listCategorias.getSelectionModel().select(i);
+                    break;
+                }
+            }
+        }
     }
 
     public void limpiarFormulario() {

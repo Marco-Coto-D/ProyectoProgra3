@@ -1,10 +1,12 @@
 package reservas.presentation.reserva;
 
+import javafx.application.Platform;
 import reservas.data.interfaces.CategoriaRecursoRepositorio;
 import reservas.data.interfaces.RecursoRepositorio;
 import reservas.data.interfaces.ReservaRepositorio;
 import reservas.logic.*;
 import reservas.presentation.Sesion;
+import reservas.util.PdfUtil;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -102,9 +104,65 @@ public class ReservaController {
         view.limpiarFormulario();
     }
 
+    public void print() {
+        if (model.getMisReservas().isEmpty()) {
+            model.setError("No hay reservas para exportar");
+            return;
+        }
+        List<String> encabezados = List.of("Actividad", "Fecha", "Horario", "Estado");
+        List<List<String>> filas = new ArrayList<>();
+        for (Reserva r : model.getMisReservas()) {
+            filas.add(List.of(
+                    r.getActividad(),
+                    r.getFecha().toString(),
+                    r.getHoraInicio() + " - " + r.getHoraFin(),
+                    r.getEstado().toString()
+            ));
+        }
+        try {
+            PdfUtil.generar("Mis Reservas", encabezados, filas);
+            model.setError("");
+        } catch (Exception e) {
+            model.setError("Error al generar PDF: " + e.getMessage());
+        }
+    }
+
+    public void extraerConIA(String frase) {
+        if (frase == null || frase.isBlank()) {
+            model.setError("Escribí una descripción antes de extraer");
+            return;
+        }
+        view.setBtnExtraerDeshabilitado(true);
+        model.setError("Consultando IA...");
+
+        List<CategoriaRecurso> snapshot = new ArrayList<>(model.getCategorias());
+        IAService ia = new IAService();
+
+        new Thread(() -> {
+            try {
+                DatosReservaIA datos = ia.extraer(frase, snapshot);
+                Platform.runLater(() -> {
+                    view.llenarDesdeIA(datos.actividad(), datos.fecha(),
+                            datos.horaInicio(), datos.horaFin(), datos.categorias());
+                    model.setError("");
+                    view.setBtnExtraerDeshabilitado(false);
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> {
+                    model.setError("Error IA: " + e.getMessage());
+                    view.setBtnExtraerDeshabilitado(false);
+                });
+            }
+        }).start();
+    }
+
     public void cancelar(Reserva seleccionada) {
         if (seleccionada == null) {
             model.setError("Seleccioná una reserva de la tabla");
+            return;
+        }
+        if (seleccionada.getEstado() == EstadoReserva.CANCELADA) {
+            model.setError("Esta reserva ya está cancelada");
             return;
         }
         if (seleccionada.getFecha().isBefore(LocalDate.now())) {

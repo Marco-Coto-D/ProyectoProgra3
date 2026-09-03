@@ -22,6 +22,7 @@ public class RecursoView implements PropertyChangeListener {
     @FXML private Button btnGuardar;
     @FXML private Button btnBorrar;
     @FXML private Button btnLimpiar;
+    @FXML private Button btnPdf;
     @FXML private Label lblError;
     @FXML private TableView<Recurso> tablaRecursos;
     @FXML private TableColumn<Recurso, String> colId;
@@ -51,10 +52,12 @@ public class RecursoView implements PropertyChangeListener {
         btnBorrar.setOnAction(e -> controller.borrar(tablaRecursos.getSelectionModel().getSelectedItem()));
         btnLimpiar.setOnAction(e -> limpiarFormulario());
         cmbFiltro.setOnAction(e -> controller.buscarPorCategoria(cmbFiltro.getValue()));
+        btnPdf.setOnAction(e -> controller.print());
 
         tablaRecursos.getSelectionModel().selectedItemProperty().addListener((obs, anterior, seleccionado) -> {
             if (seleccionado != null) {
                 txtId.setText(seleccionado.getId());
+                txtId.setEditable(false);
                 txtDescripcion.setText(seleccionado.getDescripcion());
                 cmbCategoria.setValue(seleccionado.getCategoria());
             }
@@ -91,6 +94,7 @@ public class RecursoView implements PropertyChangeListener {
 
     public void limpiarFormulario() {
         txtId.clear();
+        txtId.setEditable(true);
         txtDescripcion.clear();
         cmbCategoria.setValue(null);
         tablaRecursos.getSelectionModel().clearSelection();
