@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <center>
+        <VBox spacing="10" style="-fx-padding: 30; -fx-max-width: 320;" alignment="TOP_LEFT">
+            <Label text="Cambiar clave" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+            <PasswordField fx:id="pfClaveActual" promptText="Clave actual"/>
+            <PasswordField fx:id="pfClaveNueva" promptText="Clave nueva"/>
+            <PasswordField fx:id="pfConfirmar" promptText="Confirmar clave nueva"/>
+            <Button fx:id="btnCambiar" text="Cambiar clave"/>
+            <Label fx:id="lblError" style="-fx-text-fill: red;"/>
+            <Label fx:id="lblExito" style="-fx-text-fill: green;"/>
+        </VBox>
+    </center>
+</BorderPane>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <top>
+        <HBox spacing="10" style="-fx-padding: 10;">
+            <DatePicker fx:id="dpFecha" promptText="Fecha"/>
+            <ComboBox fx:id="cmbCategoria" promptText="Categoría de recurso"/>
+            <Button fx:id="btnPdf" text="Generar PDF"/>
+            <Label fx:id="lblError" style="-fx-text-fill: red;"/>
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane>
+            <GridPane fx:id="gridCalendario" hgap="2" vgap="2" style="-fx-padding: 5;"/>
+        </ScrollPane>
+    </center>
+</BorderPane>
