@@ -5,6 +5,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 import reservas.logic.CategoriaRecurso;
 import reservas.logic.Recurso;
@@ -19,9 +21,11 @@ public class RecursoView implements PropertyChangeListener {
     @FXML private TextField txtDescripcion;
     @FXML private ComboBox<CategoriaRecurso> cmbCategoria;
     @FXML private ComboBox<CategoriaRecurso> cmbFiltro;
+    @FXML private TextField txtBusqueda;
     @FXML private Button btnGuardar;
     @FXML private Button btnBorrar;
     @FXML private Button btnLimpiar;
+    @FXML private Button btnBuscar;
     @FXML private Button btnPdf;
     @FXML private Label lblError;
     @FXML private TableView<Recurso> tablaRecursos;
@@ -31,6 +35,7 @@ public class RecursoView implements PropertyChangeListener {
 
     private final Parent root;
     private RecursoModel model;
+    private Recurso seleccionado;
 
     public RecursoView() {
         try {
@@ -40,6 +45,19 @@ public class RecursoView implements PropertyChangeListener {
         } catch (IOException e) {
             throw new RuntimeException("No se pudo cargar RecursoView.fxml", e);
         }
+
+        btnGuardar.setGraphic(icono("save.png"));
+        btnBorrar.setGraphic(icono("delete.png"));
+        btnLimpiar.setGraphic(icono("clear.png"));
+        btnBuscar.setGraphic(icono("search.png"));
+        btnPdf.setGraphic(icono("pdf.png"));
+    }
+
+    private ImageView icono(String archivo) {
+        ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("/reservas/presentation/iconos/" + archivo)));
+        iv.setFitWidth(16);
+        iv.setFitHeight(16);
+        return iv;
     }
 
     public Parent getRoot() {
@@ -48,18 +66,20 @@ public class RecursoView implements PropertyChangeListener {
 
     public void setController(RecursoController controller) {
         btnGuardar.setOnAction(e -> controller.guardar(
-                txtId.getText(), txtDescripcion.getText(), cmbCategoria.getValue()));
+                seleccionado, txtId.getText(), txtDescripcion.getText(), cmbCategoria.getValue()));
         btnBorrar.setOnAction(e -> controller.borrar(tablaRecursos.getSelectionModel().getSelectedItem()));
         btnLimpiar.setOnAction(e -> limpiarFormulario());
         cmbFiltro.setOnAction(e -> controller.buscarPorCategoria(cmbFiltro.getValue()));
+        btnBuscar.setOnAction(e -> controller.buscar(txtBusqueda.getText()));
         btnPdf.setOnAction(e -> controller.print());
 
-        tablaRecursos.getSelectionModel().selectedItemProperty().addListener((obs, anterior, seleccionado) -> {
-            if (seleccionado != null) {
-                txtId.setText(seleccionado.getId());
+        tablaRecursos.getSelectionModel().selectedItemProperty().addListener((obs, anterior, item) -> {
+            if (item != null) {
+                seleccionado = item;
+                txtId.setText(item.getId());
                 txtId.setEditable(false);
-                txtDescripcion.setText(seleccionado.getDescripcion());
-                cmbCategoria.setValue(seleccionado.getCategoria());
+                txtDescripcion.setText(item.getDescripcion());
+                cmbCategoria.setValue(item.getCategoria());
             }
         });
     }
@@ -93,10 +113,12 @@ public class RecursoView implements PropertyChangeListener {
     }
 
     public void limpiarFormulario() {
+        seleccionado = null;
         txtId.clear();
         txtId.setEditable(true);
         txtDescripcion.clear();
         cmbCategoria.setValue(null);
+        txtBusqueda.clear();
         tablaRecursos.getSelectionModel().clearSelection();
     }
 

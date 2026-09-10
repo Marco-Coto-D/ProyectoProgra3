@@ -6,6 +6,8 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -17,6 +19,7 @@ public class CambiarClaveView implements PropertyChangeListener {
     @FXML private PasswordField pfClaveNueva;
     @FXML private PasswordField pfConfirmar;
     @FXML private Button btnCambiar;
+    @FXML private Button btnPdf;
     @FXML private Label lblError;
     @FXML private Label lblExito;
 
@@ -31,6 +34,11 @@ public class CambiarClaveView implements PropertyChangeListener {
         } catch (IOException e) {
             throw new RuntimeException("No se pudo cargar CambiarClaveView.fxml", e);
         }
+
+        ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("/reservas/presentation/iconos/pdf.png")));
+        iv.setFitWidth(16);
+        iv.setFitHeight(16);
+        btnPdf.setGraphic(iv);
     }
 
     public Parent getRoot() {
@@ -40,6 +48,7 @@ public class CambiarClaveView implements PropertyChangeListener {
     public void setController(CambiarClaveController controller) {
         btnCambiar.setOnAction(e -> controller.cambiarClave(
                 pfClaveActual.getText(), pfClaveNueva.getText(), pfConfirmar.getText()));
+        btnPdf.setOnAction(e -> controller.print());
     }
 
     public void setModel(CambiarClaveModel model) {

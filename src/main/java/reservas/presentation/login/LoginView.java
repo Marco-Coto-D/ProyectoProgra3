@@ -8,6 +8,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -20,6 +22,7 @@ public class LoginView implements PropertyChangeListener {
     @FXML private TextField txtId;
     @FXML private PasswordField txtClave;
     @FXML private Button btnIngresar;
+    @FXML private Button btnCambiar;
     @FXML private Label lblError;
 
     private final Stage stage = new Stage();
@@ -34,15 +37,30 @@ public class LoginView implements PropertyChangeListener {
 
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("Ingreso al sistema");
+            stage.getIcons().add(new Image(getClass().getResourceAsStream("/reservas/presentation/iconos/icon.png")));
             stage.setScene(new Scene(root));
         } catch (IOException e) {
             throw new RuntimeException("No se pudo cargar LoginView.fxml", e);
         }
+
+        btnCambiar.setGraphic(icono("clave.png"));
+    }
+
+    private ImageView icono(String archivo) {
+        ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("/reservas/presentation/iconos/" + archivo)));
+        iv.setFitWidth(16);
+        iv.setFitHeight(16);
+        return iv;
     }
 
     @FXML
     private void onIngresar() {
         controller.intentarLogin(txtId.getText(), txtClave.getText());
+    }
+
+    @FXML
+    private void onCambiar() {
+        controller.abrirCambioClave(txtId.getText());
     }
 
     public void setController(LoginController controller) {

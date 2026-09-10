@@ -2,7 +2,7 @@
 <sistema>
     <administradores>
         <administrador id="999">
-            <clave>clave123</clave>
+            <clave>999</clave>
             <rol>ADMINISTRADOR</rol>
         </administrador>
     </administradores>
@@ -12,6 +12,18 @@
             <rol>FUNCIONARIO</rol>
             <nombre>Marco</nombre>
             <telefono>9999-9999</telefono>
+        </funcionario>
+        <funcionario id="333">
+            <clave>333</clave>
+            <rol>FUNCIONARIO</rol>
+            <nombre>Sofia</nombre>
+            <telefono>8123-4567</telefono>
+        </funcionario>
+        <funcionario id="444">
+            <clave>444</clave>
+            <rol>FUNCIONARIO</rol>
+            <nombre>Jose</nombre>
+            <telefono>8765-4321</telefono>
         </funcionario>
         <funcionario id="111">
             <clave>111</clave>
@@ -24,6 +36,15 @@
         <categoria id="CAT-001">
             <descripcion>Sala</descripcion>
         </categoria>
+        <categoria id="CAT-002">
+            <descripcion>Sala de Juntas</descripcion>
+        </categoria>
+        <categoria id="CAT-003">
+            <descripcion>Laptop Windows 11</descripcion>
+        </categoria>
+        <categoria id="CAT-004">
+            <descripcion>Proyector</descripcion>
+        </categoria>
     </categorias>
     <recursos>
         <recurso id="R-001">
@@ -33,6 +54,34 @@
         <recurso id="R-002">
             <descripcion>Sala 2 segundo piso</descripcion>
             <categoria>CAT-001</categoria>
+        </recurso>
+        <recurso id="R-003">
+            <descripcion>Sala de Juntas Ejecutiva - Piso 3</descripcion>
+            <categoria>CAT-002</categoria>
+        </recurso>
+        <recurso id="R-004">
+            <descripcion>Sala de Juntas Directorio - Piso 4</descripcion>
+            <categoria>CAT-002</categoria>
+        </recurso>
+        <recurso id="R-005">
+            <descripcion>Laptop #238715</descripcion>
+            <categoria>CAT-003</categoria>
+        </recurso>
+        <recurso id="R-006">
+            <descripcion>Laptop #238716</descripcion>
+            <categoria>CAT-003</categoria>
+        </recurso>
+        <recurso id="R-007">
+            <descripcion>Laptop #238720</descripcion>
+            <categoria>CAT-003</categoria>
+        </recurso>
+        <recurso id="R-008">
+            <descripcion>Proyector Epson sala 3</descripcion>
+            <categoria>CAT-004</categoria>
+        </recurso>
+        <recurso id="R-009">
+            <descripcion>Proyector BenQ sala de juntas</descripcion>
+            <categoria>CAT-004</categoria>
         </recurso>
     </recursos>
     <reservas>
@@ -116,6 +165,96 @@
             <funcionario>222</funcionario>
             <recursos>R-002</recursos>
             <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="0c547502-87ac-4800-90ba-1e135e025cc2">
+            <actividad>Reunión de equipo</actividad>
+            <fecha>2026-09-10</fecha>
+            <horaInicio>10:00</horaInicio>
+            <horaFin>11:00</horaFin>
+            <funcionario>111</funcionario>
+            <recursos>R-001</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="f22b8fbb-bb9a-4d61-bbf0-67625e28bc19">
+            <actividad>Capacitación</actividad>
+            <fecha>2026-09-10</fecha>
+            <horaInicio>10:00</horaInicio>
+            <horaFin>11:30</horaFin>
+            <funcionario>222</funcionario>
+            <recursos>R-003</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="68409f58-bc89-4c2c-b529-ed2e267a867a">
+            <actividad>Entrevista</actividad>
+            <fecha>2026-09-12</fecha>
+            <horaInicio>09:00</horaInicio>
+            <horaFin>09:30</horaFin>
+            <funcionario>333</funcionario>
+            <recursos>R-005</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="0c9e3484-8d9f-4125-9f6c-aec9bb98f00a">
+            <actividad>Demo de producto</actividad>
+            <fecha>2026-09-15</fecha>
+            <horaInicio>14:00</horaInicio>
+            <horaFin>15:00</horaFin>
+            <funcionario>444</funcionario>
+            <recursos>R-008</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="e6c2b0d6-3616-410e-9545-7a89cf9621ed">
+            <actividad>Capacitación</actividad>
+            <fecha>2026-09-15</fecha>
+            <horaInicio>14:00</horaInicio>
+            <horaFin>15:00</horaFin>
+            <funcionario>333</funcionario>
+            <recursos>R-006</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="c15dacf8-ca64-4cde-88ef-d69ebc79d8b4">
+            <actividad>Reunión de equipo</actividad>
+            <fecha>2026-09-18</fecha>
+            <horaInicio>16:00</horaInicio>
+            <horaFin>17:00</horaFin>
+            <funcionario>111</funcionario>
+            <recursos>R-002</recursos>
+            <estado>CANCELADA</estado>
+        </reserva>
+        <reserva id="279cba14-0820-433a-a730-4a9c6eb88c68">
+            <actividad>Capacitación</actividad>
+            <fecha>2026-09-22</fecha>
+            <horaInicio>09:00</horaInicio>
+            <horaFin>10:30</horaFin>
+            <funcionario>222</funcionario>
+            <recursos>R-004</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="2b5c571a-0389-4631-976b-1c718674b2f5">
+            <actividad>Reunión de equipo</actividad>
+            <fecha>2026-09-22</fecha>
+            <horaInicio>09:00</horaInicio>
+            <horaFin>10:00</horaFin>
+            <funcionario>111</funcionario>
+            <recursos>R-001</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="dd644113-b8d9-4112-b8ca-8b7c9d489272">
+            <actividad>Demo de producto</actividad>
+            <fecha>2026-09-28</fecha>
+            <horaInicio>13:00</horaInicio>
+            <horaFin>13:45</horaFin>
+            <funcionario>444</funcionario>
+            <recursos>R-009</recursos>
+            <estado>CANCELADA</estado>
+        </reserva>
+        <reserva id="fc8d23ca-8636-4fe0-8d1b-0adb3c314842">
+            <actividad>j</actividad>
+            <fecha>2026-09-26</fecha>
+            <horaInicio>09:00</horaInicio>
+            <horaFin>11:00</horaFin>
+            <funcionario>111</funcionario>
+            <recursos>R-005</recursos>
+            <estado>CANCELADA</estado>
         </reserva>
     </reservas>
 </sistema>

@@ -5,6 +5,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 import reservas.logic.Funcionario;
 
@@ -41,6 +43,19 @@ public class FuncionarioView implements PropertyChangeListener {
         } catch (IOException e) {
             throw new RuntimeException("No se pudo cargar FuncionarioView.fxml", e);
         }
+
+        btnGuardar.setGraphic(icono("save.png"));
+        btnBorrar.setGraphic(icono("delete.png"));
+        btnLimpiar.setGraphic(icono("clear.png"));
+        btnBuscar.setGraphic(icono("search.png"));
+        btnPdf.setGraphic(icono("pdf.png"));
+    }
+
+    private ImageView icono(String archivo) {
+        ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("/reservas/presentation/iconos/" + archivo)));
+        iv.setFitWidth(16);
+        iv.setFitHeight(16);
+        return iv;
     }
 
     public Parent getRoot() {

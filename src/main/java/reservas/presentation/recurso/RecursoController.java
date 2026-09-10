@@ -33,9 +33,13 @@ public class RecursoController {
         model.setRecursos(recursoRepositorio.listarTodos());
     }
 
-    public void guardar(String id, String descripcion, CategoriaRecurso categoria) {
+    public void guardar(Recurso seleccionado, String id, String descripcion, CategoriaRecurso categoria) {
         if (id == null || id.isBlank() || descripcion == null || descripcion.isBlank() || categoria == null) {
             model.setError("Completá id, descripción y categoría");
+            return;
+        }
+        if (seleccionado == null && recursoRepositorio.buscarPorId(id).isPresent()) {
+            model.setError("Ya existe un recurso con el id " + id);
             return;
         }
 
@@ -80,5 +84,16 @@ public class RecursoController {
                 ? recursoRepositorio.listarTodos()
                 : recursoRepositorio.buscarPorCategoria(categoria.getId());
         model.setRecursos(resultado);
+    }
+
+    public void buscar(String texto) {
+        if (texto == null || texto.isBlank()) {
+            model.setRecursos(recursoRepositorio.listarTodos());
+            return;
+        }
+        recursoRepositorio.buscarPorId(texto).ifPresentOrElse(
+                r -> model.setRecursos(List.of(r)),
+                () -> model.setRecursos(recursoRepositorio.buscarPorTexto(texto))
+        );
     }
 }

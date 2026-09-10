@@ -54,19 +54,19 @@ public class MainShellController {
         model.setUsuario(Sesion.getUsuario());
 
         if (Sesion.getUsuario().getRol() == Rol.FUNCIONARIO) {
-            view.agregarPestana("Reservas", this::construirReservas);
+            view.agregarPestana("Reservas", "reservas.png", this::construirReservas);
         }
 
         if (Sesion.getUsuario().getRol() == Rol.ADMINISTRADOR) {
-            view.agregarPestana("Recursos", this::construirRecursos);
-            view.agregarPestana("Funcionarios", this::construirFuncionarios);
-            view.agregarPestana("Categorías", this::construirCategorias);
+            view.agregarPestana("Recursos", "recursos.png", this::construirRecursos);
+            view.agregarPestana("Funcionarios", "funcionarios.png", this::construirFuncionarios);
+            view.agregarPestana("Categorías", "categorias.png", this::construirCategorias);
         }
 
-        view.agregarPestana("Calendarización", this::construirCalendarizacion);
-        view.agregarPestana("Programación", this::construirActividad);
-        view.agregarPestana("Estadísticas", this::construirEstadistica);
-        view.agregarPestana("Cambiar clave", this::construirCambiarClave);
+        view.agregarPestana("Calendarización", "calendarizacion.png", this::construirCalendarizacion);
+        view.agregarPestana("Programación", "actividades.png", this::construirActividad);
+        view.agregarPestana("Estadísticas", "statistics.png", this::construirEstadistica);
+        view.agregarPestana("Cambiar clave", "clave.png", this::construirCambiarClave);
 
         view.mostrar();
     }

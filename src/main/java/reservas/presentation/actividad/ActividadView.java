@@ -6,7 +6,11 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.RowConstraints;
+import javafx.scene.shape.Rectangle;
 
 import reservas.logic.Reserva;
 import javafx.scene.control.Button;
@@ -29,6 +33,10 @@ public class ActividadView implements PropertyChangeListener {
     private ActividadModel model;
 
     private static final String[] DIAS = {"Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"};
+    private static final double ALTURA_FILA = 45;
+    private static final int MAX_LARGO_TEXTO = 60;
+    private static final double ANCHO_COLUMNA_HORA = 60;
+    private static final double ANCHO_COLUMNA_DIA = 140;
 
     public ActividadView() {
         try {
@@ -67,17 +75,21 @@ public class ActividadView implements PropertyChangeListener {
         Label lblEncabezadoHora = new Label("Hora");
         lblEncabezadoHora.setStyle("-fx-font-weight: bold; -fx-background-color: #d5d8dc; -fx-padding: 5;");
         gridActividad.add(lblEncabezadoHora, 0, 0);
+        gridActividad.getRowConstraints().add(crearFilaFija());
+        gridActividad.getColumnConstraints().add(crearColumnaFija(ANCHO_COLUMNA_HORA));
 
         for (int dia = 0; dia < 7; dia++) {
             LocalDate fecha = lunes.plusDays(dia);
             Label lblDia = new Label(DIAS[dia] + " " + fecha);
             lblDia.setStyle("-fx-font-weight: bold; -fx-background-color: #d5d8dc; -fx-padding: 5; -fx-min-width: 140;");
             gridActividad.add(lblDia, dia + 1, 0);
+            gridActividad.getColumnConstraints().add(crearColumnaFija(ANCHO_COLUMNA_DIA));
         }
 
         for (int h = 6; h <= 22; h++) {
             int fila = h - 5;
             LocalTime hora = LocalTime.of(h, 0);
+            gridActividad.getRowConstraints().add(crearFilaFija());
 
             Label lblHoraFila = new Label(hora.toString());
             lblHoraFila.setStyle("-fx-font-weight: bold; -fx-padding: 5; -fx-min-width: 60;");
@@ -92,8 +104,10 @@ public class ActividadView implements PropertyChangeListener {
                     String texto = reservasEnCelda.stream()
                             .map(r -> r.getActividad() + " (" + r.getFuncionario().getNombre() + ")")
                             .collect(Collectors.joining("\n"));
-                    celda = new Label(texto);
+                    celda = new Label(truncar(texto, MAX_LARGO_TEXTO));
                     celda.setStyle("-fx-background-color: #a9dfbf; -fx-padding: 5; -fx-min-width: 140; -fx-min-height: 40; -fx-wrap-text: true;");
+                    limitarAltura(celda);
+                    Tooltip.install(celda, new Tooltip(texto));
                 } else {
                     celda = new Label("");
                     celda.setStyle("-fx-padding: 5; -fx-min-width: 140; -fx-min-height: 40; -fx-border-color: #e0e0e0; -fx-border-width: 1;");
@@ -101,6 +115,36 @@ public class ActividadView implements PropertyChangeListener {
                 gridActividad.add(celda, dia + 1, fila);
             }
         }
+    }
+
+    private RowConstraints crearFilaFija() {
+        RowConstraints fila = new RowConstraints();
+        fila.setMinHeight(ALTURA_FILA);
+        fila.setPrefHeight(ALTURA_FILA);
+        fila.setMaxHeight(ALTURA_FILA);
+        return fila;
+    }
+
+    private ColumnConstraints crearColumnaFija(double ancho) {
+        ColumnConstraints columna = new ColumnConstraints();
+        columna.setMinWidth(ancho);
+        columna.setPrefWidth(ancho);
+        columna.setMaxWidth(ancho);
+        return columna;
+    }
+
+    private String truncar(String texto, int maxLargo) {
+        if (texto.length() <= maxLargo) return texto;
+        return texto.substring(0, maxLargo - 3) + "...";
+    }
+
+    private void limitarAltura(Label celda) {
+        celda.setMinHeight(ALTURA_FILA);
+        celda.setMaxHeight(ALTURA_FILA);
+        Rectangle clip = new Rectangle();
+        clip.widthProperty().bind(celda.widthProperty());
+        clip.heightProperty().bind(celda.heightProperty());
+        celda.setClip(clip);
     }
 
     private List<Reserva> encontrarReservas(List<Reserva> reservas, LocalDate fecha, LocalTime hora) {

@@ -10,6 +10,7 @@
             <PasswordField fx:id="pfClaveNueva" promptText="Clave nueva"/>
             <PasswordField fx:id="pfConfirmar" promptText="Confirmar clave nueva"/>
             <Button fx:id="btnCambiar" text="Cambiar clave"/>
+            <Button fx:id="btnPdf" text="Generar PDF"/>
             <Label fx:id="lblError" style="-fx-text-fill: red;"/>
             <Label fx:id="lblExito" style="-fx-text-fill: green;"/>
         </VBox>

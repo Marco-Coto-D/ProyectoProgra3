@@ -7,6 +7,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 
 <GridPane hgap="10" prefHeight="205.0" prefWidth="293.0" vgap="10" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1">
@@ -20,7 +21,10 @@
     <Label text="Clave:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
     <PasswordField fx:id="txtClave" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-    <Button fx:id="btnIngresar" onAction="#onIngresar" text="Ingresar" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+    <HBox spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="2">
+        <Button fx:id="btnIngresar" onAction="#onIngresar" text="Ingresar" />
+        <Button fx:id="btnCambiar" onAction="#onCambiar" text="Cambiar" />
+    </HBox>
 
     <Label fx:id="lblError" style="-fx-text-fill: red;" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="3" />
    <columnConstraints>

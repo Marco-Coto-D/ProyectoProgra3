@@ -5,6 +5,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 import reservas.logic.CategoriaRecurso;
 
@@ -39,6 +41,19 @@ public class CategoriaView implements PropertyChangeListener {
         } catch (IOException e) {
             throw new RuntimeException("No se pudo cargar CategoriaView.fxml", e);
         }
+
+        btnGuardar.setGraphic(icono("save.png"));
+        btnBorrar.setGraphic(icono("delete.png"));
+        btnLimpiar.setGraphic(icono("clear.png"));
+        btnBuscar.setGraphic(icono("search.png"));
+        btnPdf.setGraphic(icono("pdf.png"));
+    }
+
+    private ImageView icono(String archivo) {
+        ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("/reservas/presentation/iconos/" + archivo)));
+        iv.setFitWidth(16);
+        iv.setFitHeight(16);
+        return iv;
     }
 
     public Parent getRoot() {
@@ -49,7 +64,7 @@ public class CategoriaView implements PropertyChangeListener {
         btnGuardar.setOnAction(e -> controller.guardar(seleccionada, txtDescripcion.getText()));
         btnBorrar.setOnAction(e -> controller.borrar(tablaCategorias.getSelectionModel().getSelectedItem()));
         btnLimpiar.setOnAction(e -> limpiarFormulario());
-        btnBuscar.setOnAction(e -> controller.buscarPorDescripcion(txtBusqueda.getText()));
+        btnBuscar.setOnAction(e -> controller.buscar(txtBusqueda.getText()));
         btnPdf.setOnAction(e -> controller.print());
 
         tablaCategorias.getSelectionModel().selectedItemProperty().addListener((obs, anterior, item) -> {

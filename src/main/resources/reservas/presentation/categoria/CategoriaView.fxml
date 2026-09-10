@@ -22,7 +22,7 @@
     <center>
         <VBox spacing="5">
             <HBox spacing="10">
-                <TextField fx:id="txtBusqueda" promptText="Buscar por descripción"/>
+                <TextField fx:id="txtBusqueda" promptText="Buscar por id o descripción"/>
                 <Button fx:id="btnBuscar" text="Buscar"/>
             </HBox>
             <TableView fx:id="tablaCategorias">

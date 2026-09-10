@@ -6,6 +6,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 import java.beans.PropertyChangeEvent;
@@ -40,15 +42,23 @@ public class MainShellView implements PropertyChangeListener {
         model.addPropertyChangeListener(this);
     }
 
-    public void agregarPestana(String titulo, Supplier<Parent> contenido) {
+    public void agregarPestana(String titulo, String icono, Supplier<Parent> contenido) {
         Tab tab = new Tab(titulo);
         tab.setClosable(false);
         tab.setUserData(contenido);
+        tab.setGraphic(icono(icono, 18));
         tabs.getTabs().add(tab);
 
         if (tabs.getTabs().size() == 1) {
             cargarSiHaceFalta(tab);
         }
+    }
+
+    private ImageView icono(String archivo, double tamano) {
+        ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("/reservas/presentation/iconos/" + archivo)));
+        iv.setFitWidth(tamano);
+        iv.setFitHeight(tamano);
+        return iv;
     }
 
     @SuppressWarnings("unchecked")
@@ -62,6 +72,7 @@ public class MainShellView implements PropertyChangeListener {
 
     public void mostrar() {
         stage.setTitle("Sistema de Reserva de Recursos");
+        stage.getIcons().add(new Image(getClass().getResourceAsStream("/reservas/presentation/iconos/icon.png")));
         stage.setScene(new Scene(root));
         stage.show();
     }

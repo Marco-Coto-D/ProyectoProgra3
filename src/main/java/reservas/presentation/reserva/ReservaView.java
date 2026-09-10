@@ -5,8 +5,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 import reservas.logic.CategoriaRecurso;
+import reservas.logic.Recurso;
 import reservas.logic.Reserva;
 
 import java.beans.PropertyChangeEvent;
@@ -15,6 +18,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ReservaView implements PropertyChangeListener {
 
@@ -34,6 +38,7 @@ public class ReservaView implements PropertyChangeListener {
     @FXML private TableColumn<Reserva, String> colActividad;
     @FXML private TableColumn<Reserva, String> colFecha;
     @FXML private TableColumn<Reserva, String> colHorario;
+    @FXML private TableColumn<Reserva, String> colRecurso;
     @FXML private TableColumn<Reserva, String> colEstado;
 
     private final Parent root;
@@ -54,6 +59,19 @@ public class ReservaView implements PropertyChangeListener {
             cmbHoraInicio.getItems().add(hora);
             cmbHoraFin.getItems().add(hora);
         }
+
+        btnExtraer.setGraphic(icono("ai.png"));
+        btnReservar.setGraphic(icono("ok.png"));
+        btnCancelar.setGraphic(icono("cancel.png"));
+        btnLimpiar.setGraphic(icono("clear.png"));
+        btnPdf.setGraphic(icono("pdf.png"));
+    }
+
+    private ImageView icono(String archivo) {
+        ImageView iv = new ImageView(new Image(getClass().getResourceAsStream("/reservas/presentation/iconos/" + archivo)));
+        iv.setFitWidth(16);
+        iv.setFitHeight(16);
+        return iv;
     }
 
     public Parent getRoot() {
@@ -87,6 +105,9 @@ public class ReservaView implements PropertyChangeListener {
         colFecha.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getFecha().toString()));
         colHorario.setCellValueFactory(d -> new SimpleStringProperty(
                 d.getValue().getHoraInicio() + " - " + d.getValue().getHoraFin()));
+        colRecurso.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getRecursos().stream()
+                .map(Recurso::getDescripcion)
+                .collect(Collectors.joining(", "))));
         colEstado.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getEstado().toString()));
 
         tablaReservas.setItems(model.getMisReservas());

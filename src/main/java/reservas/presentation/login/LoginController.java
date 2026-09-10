@@ -29,4 +29,15 @@ public class LoginController {
             view.cerrar();
         }
     }
+
+    public void abrirCambioClave(String id) {
+        if (id == null || id.isBlank()) {
+            model.setError("Escribí tu id primero");
+            return;
+        }
+        CambioClaveLoginView dialogo = new CambioClaveLoginView(id);
+        CambioClaveLoginModel dialogoModel = new CambioClaveLoginModel();
+        new CambioClaveLoginController(dialogo, dialogoModel, servicio, id);
+        dialogo.mostrar();
+    }
 }

@@ -2,7 +2,6 @@ package reservas.presentation.estadistica;
 
 import reservas.data.interfaces.ReservaRepositorio;
 import reservas.logic.EstadoReserva;
-import reservas.logic.Recurso;
 import reservas.util.PdfUtil;
 
 import java.time.DayOfWeek;

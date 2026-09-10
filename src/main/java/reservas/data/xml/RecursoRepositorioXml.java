@@ -22,6 +22,15 @@ public class RecursoRepositorioXml implements RecursoRepositorio {
     }
 
     @Override
+    public List<Recurso> buscarPorTexto(String texto) {
+        String filtro = texto == null ? "" : texto.toLowerCase();
+        return listarTodos().stream()
+                .filter(r -> r.getDescripcion().toLowerCase().contains(filtro)
+                        || r.getCategoria().getDescripcion().toLowerCase().contains(filtro))
+                .toList();
+    }
+
+    @Override
     public Optional<Recurso> buscarPorId(String id) {
         return listarTodos().stream()
                 .filter(r -> r.getId().equals(id))

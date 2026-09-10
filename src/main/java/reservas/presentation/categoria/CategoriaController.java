@@ -54,7 +54,7 @@ public class CategoriaController {
                 })
                 .max()
                 .orElse(0);
-        return String.format("CAT-%06d", maximo + 1);
+        return String.format("CAT-%03d", maximo + 1);
     }
 
     public void borrar(CategoriaRecurso seleccionada) {
@@ -85,10 +85,14 @@ public class CategoriaController {
         }
     }
 
-    public void buscarPorDescripcion(String descripcion) {
-        List<CategoriaRecurso> resultado = (descripcion == null || descripcion.isBlank())
-                ? categoriaRepositorio.listarTodos()
-                : categoriaRepositorio.buscarPorDescripcion(descripcion);
-        model.setCategorias(resultado);
+    public void buscar(String texto) {
+        if (texto == null || texto.isBlank()) {
+            model.setCategorias(categoriaRepositorio.listarTodos());
+            return;
+        }
+        categoriaRepositorio.buscarPorId(texto).ifPresentOrElse(
+                c -> model.setCategorias(List.of(c)),
+                () -> model.setCategorias(categoriaRepositorio.buscarPorDescripcion(texto))
+        );
     }
 }

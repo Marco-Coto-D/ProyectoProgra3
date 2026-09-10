@@ -33,7 +33,10 @@ public class FuncionarioController {
             model.setError("Completá id, nombre y teléfono");
             return;
         }
-
+        if (seleccionado == null && funcionarioRepositorio.buscarPorId(id).isPresent()) {
+            model.setError("Ya existe un funcionario con el id " + id);
+            return;
+        }
 
         String clave = seleccionado != null ? seleccionado.getClave() : id;
 

@@ -63,6 +63,10 @@ public class ReservaController {
             model.setError("La fecha no puede ser en el pasado");
             return;
         }
+        if (fecha.equals(LocalDate.now()) && horaInicio.isBefore(LocalTime.now())) {
+            model.setError("No podés reservar un horario de hoy que ya pasó");
+            return;
+        }
 
 
         Set<String> idsOcupados = reservaRepositorio.listarTodas().stream()
@@ -109,13 +113,17 @@ public class ReservaController {
             model.setError("No hay reservas para exportar");
             return;
         }
-        List<String> encabezados = List.of("Actividad", "Fecha", "Horario", "Estado");
+        List<String> encabezados = List.of("Actividad", "Fecha", "Horario", "Recurso", "Estado");
         List<List<String>> filas = new ArrayList<>();
         for (Reserva r : model.getMisReservas()) {
+            String recursos = r.getRecursos().stream()
+                    .map(Recurso::getDescripcion)
+                    .collect(Collectors.joining(", "));
             filas.add(List.of(
                     r.getActividad(),
                     r.getFecha().toString(),
                     r.getHoraInicio() + " - " + r.getHoraFin(),
+                    recursos,
                     r.getEstado().toString()
             ));
         }
@@ -167,6 +175,10 @@ public class ReservaController {
         }
         if (seleccionada.getFecha().isBefore(LocalDate.now())) {
             model.setError("No se puede cancelar una reserva pasada");
+            return;
+        }
+        if (seleccionada.getFecha().equals(LocalDate.now()) && !LocalTime.now().isBefore(seleccionada.getHoraFin())) {
+            model.setError("Esta reserva ya finalizó, no se puede cancelar");
             return;
         }
         reservaRepositorio.actualizarEstado(seleccionada.getId(), EstadoReserva.CANCELADA);
