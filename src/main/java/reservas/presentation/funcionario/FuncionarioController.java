@@ -77,6 +77,7 @@ public class FuncionarioController {
     }
 
     public void buscar(String texto) {
+        model.setError("");
         if (texto == null || texto.isBlank()) {
             model.setFuncionarios(funcionarioRepositorio.listarTodos());
             return;

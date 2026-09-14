@@ -34,227 +34,419 @@
     </funcionarios>
     <categorias>
         <categoria id="CAT-001">
-            <descripcion>Sala</descripcion>
-        </categoria>
-        <categoria id="CAT-002">
             <descripcion>Sala de Juntas</descripcion>
         </categoria>
+        <categoria id="CAT-002">
+            <descripcion>Laboratorios</descripcion>
+        </categoria>
         <categoria id="CAT-003">
-            <descripcion>Laptop Windows 11</descripcion>
+            <descripcion>Cubículos</descripcion>
         </categoria>
         <categoria id="CAT-004">
-            <descripcion>Proyector</descripcion>
+            <descripcion>Auditorio</descripcion>
         </categoria>
     </categorias>
     <recursos>
         <recurso id="R-001">
-            <descripcion>Sala 1 primer piso</descripcion>
+            <descripcion>Sala de Juntas Piso 1</descripcion>
             <categoria>CAT-001</categoria>
         </recurso>
         <recurso id="R-002">
-            <descripcion>Sala 2 segundo piso</descripcion>
+            <descripcion>Sala de Juntas Piso 2</descripcion>
             <categoria>CAT-001</categoria>
         </recurso>
         <recurso id="R-003">
-            <descripcion>Sala de Juntas Ejecutiva - Piso 3</descripcion>
-            <categoria>CAT-002</categoria>
+            <descripcion>Sala de Juntas Piso 3</descripcion>
+            <categoria>CAT-001</categoria>
         </recurso>
         <recurso id="R-004">
-            <descripcion>Sala de Juntas Directorio - Piso 4</descripcion>
+            <descripcion>Laboratorio de Cómputo A</descripcion>
             <categoria>CAT-002</categoria>
         </recurso>
         <recurso id="R-005">
-            <descripcion>Laptop #238715</descripcion>
-            <categoria>CAT-003</categoria>
+            <descripcion>Laboratorio de Cómputo B</descripcion>
+            <categoria>CAT-002</categoria>
         </recurso>
         <recurso id="R-006">
-            <descripcion>Laptop #238716</descripcion>
-            <categoria>CAT-003</categoria>
+            <descripcion>Laboratorio de Redes</descripcion>
+            <categoria>CAT-002</categoria>
         </recurso>
         <recurso id="R-007">
-            <descripcion>Laptop #238720</descripcion>
+            <descripcion>Cubículo 101</descripcion>
             <categoria>CAT-003</categoria>
         </recurso>
         <recurso id="R-008">
-            <descripcion>Proyector Epson sala 3</descripcion>
-            <categoria>CAT-004</categoria>
+            <descripcion>Cubículo 102</descripcion>
+            <categoria>CAT-003</categoria>
         </recurso>
         <recurso id="R-009">
-            <descripcion>Proyector BenQ sala de juntas</descripcion>
+            <descripcion>Cubículo 103</descripcion>
+            <categoria>CAT-003</categoria>
+        </recurso>
+        <recurso id="R-010">
+            <descripcion>Cubículo 104</descripcion>
+            <categoria>CAT-003</categoria>
+        </recurso>
+        <recurso id="R-011">
+            <descripcion>Auditorio Principal</descripcion>
+            <categoria>CAT-004</categoria>
+        </recurso>
+        <recurso id="R-012">
+            <descripcion>Auditorio Pequeño</descripcion>
             <categoria>CAT-004</categoria>
         </recurso>
     </recursos>
     <reservas>
-        <reserva id="b80bb538-a609-48bc-afd3-4b22629c6b22">
-            <actividad>Correr</actividad>
-            <fecha>2026-09-03</fecha>
-            <horaInicio>07:00</horaInicio>
-            <horaFin>10:00</horaFin>
-            <funcionario>111</funcionario>
-            <recursos>R-001</recursos>
-            <estado>ACTIVADA</estado>
-        </reserva>
-        <reserva id="51507b2c-d352-4991-8ed6-428a4cb6e717">
-            <actividad>jugar</actividad>
-            <fecha>2026-09-05</fecha>
-            <horaInicio>08:00</horaInicio>
-            <horaFin>11:00</horaFin>
-            <funcionario>111</funcionario>
-            <recursos>R-001</recursos>
-            <estado>ACTIVADA</estado>
-        </reserva>
-        <reserva id="0f73fcbc-4ec4-492f-a8dd-eaf704245474">
-            <actividad>comer</actividad>
-            <fecha>2026-10-01</fecha>
-            <horaInicio>09:00</horaInicio>
-            <horaFin>10:00</horaFin>
-            <funcionario>111</funcionario>
-            <recursos>R-001</recursos>
-            <estado>ACTIVADA</estado>
-        </reserva>
-        <reserva id="4c6f4a09-959e-4688-9040-6e0fc524a905">
-            <actividad>dormir</actividad>
-            <fecha>2026-09-03</fecha>
-            <horaInicio>08:00</horaInicio>
-            <horaFin>09:00</horaFin>
-            <funcionario>111</funcionario>
-            <recursos>R-002</recursos>
-            <estado>ACTIVADA</estado>
-        </reserva>
-        <reserva id="b111091b-f9e9-4e51-91d1-4cd7472af761">
-            <actividad>gym </actividad>
-            <fecha>2026-09-02</fecha>
-            <horaInicio>17:00</horaInicio>
-            <horaFin>19:00</horaFin>
-            <funcionario>111</funcionario>
-            <recursos>R-001</recursos>
-            <estado>CANCELADA</estado>
-        </reserva>
-        <reserva id="3a3a1d5d-d2f1-4531-b226-6512c0daab85">
-            <actividad>futbol</actividad>
-            <fecha>2026-09-17</fecha>
-            <horaInicio>10:00</horaInicio>
-            <horaFin>12:00</horaFin>
-            <funcionario>111</funcionario>
-            <recursos>R-001</recursos>
-            <estado>ACTIVADA</estado>
-        </reserva>
-        <reserva id="92cd2ada-0b08-4584-b47a-b40999893c2b">
-            <actividad>comer</actividad>
-            <fecha>2026-09-03</fecha>
-            <horaInicio>07:00</horaInicio>
-            <horaFin>08:00</horaFin>
-            <funcionario>222</funcionario>
-            <recursos>R-002</recursos>
-            <estado>ACTIVADA</estado>
-        </reserva>
-        <reserva id="b8503035-0b9d-4407-a625-100f50b2d2f4">
-            <actividad>basket</actividad>
-            <fecha>2026-09-03</fecha>
-            <horaInicio>10:00</horaInicio>
-            <horaFin>11:00</horaFin>
-            <funcionario>111</funcionario>
-            <recursos>R-001</recursos>
-            <estado>ACTIVADA</estado>
-        </reserva>
-        <reserva id="fe0435f0-c916-4398-a0de-f73d32739a6a">
-            <actividad>gym</actividad>
-            <fecha>2026-09-03</fecha>
-            <horaInicio>09:00</horaInicio>
-            <horaFin>10:00</horaFin>
-            <funcionario>222</funcionario>
-            <recursos>R-002</recursos>
-            <estado>ACTIVADA</estado>
-        </reserva>
-        <reserva id="0c547502-87ac-4800-90ba-1e135e025cc2">
+        <reserva id="2e85abaa-8188-4a76-af6e-bf202ae3e8ac">
             <actividad>Reunión de equipo</actividad>
-            <fecha>2026-09-10</fecha>
-            <horaInicio>10:00</horaInicio>
-            <horaFin>11:00</horaFin>
+            <fecha>2026-09-14</fecha>
+            <horaInicio>09:00</horaInicio>
+            <horaFin>10:00</horaFin>
             <funcionario>111</funcionario>
             <recursos>R-001</recursos>
             <estado>ACTIVADA</estado>
         </reserva>
-        <reserva id="f22b8fbb-bb9a-4d61-bbf0-67625e28bc19">
-            <actividad>Capacitación</actividad>
-            <fecha>2026-09-10</fecha>
-            <horaInicio>10:00</horaInicio>
-            <horaFin>11:30</horaFin>
-            <funcionario>222</funcionario>
-            <recursos>R-003</recursos>
-            <estado>ACTIVADA</estado>
-        </reserva>
-        <reserva id="68409f58-bc89-4c2c-b529-ed2e267a867a">
-            <actividad>Entrevista</actividad>
-            <fecha>2026-09-12</fecha>
-            <horaInicio>09:00</horaInicio>
-            <horaFin>09:30</horaFin>
-            <funcionario>333</funcionario>
-            <recursos>R-005</recursos>
-            <estado>ACTIVADA</estado>
-        </reserva>
-        <reserva id="0c9e3484-8d9f-4125-9f6c-aec9bb98f00a">
-            <actividad>Demo de producto</actividad>
+        <reserva id="6b0326d3-1f35-4d93-9a80-6b2256717968">
+            <actividad>Sesión de laboratorio</actividad>
             <fecha>2026-09-15</fecha>
             <horaInicio>14:00</horaInicio>
-            <horaFin>15:00</horaFin>
-            <funcionario>444</funcionario>
-            <recursos>R-008</recursos>
-            <estado>ACTIVADA</estado>
-        </reserva>
-        <reserva id="e6c2b0d6-3616-410e-9545-7a89cf9621ed">
-            <actividad>Capacitación</actividad>
-            <fecha>2026-09-15</fecha>
-            <horaInicio>14:00</horaInicio>
-            <horaFin>15:00</horaFin>
-            <funcionario>333</funcionario>
-            <recursos>R-006</recursos>
-            <estado>ACTIVADA</estado>
-        </reserva>
-        <reserva id="c15dacf8-ca64-4cde-88ef-d69ebc79d8b4">
-            <actividad>Reunión de equipo</actividad>
-            <fecha>2026-09-18</fecha>
-            <horaInicio>16:00</horaInicio>
-            <horaFin>17:00</horaFin>
+            <horaFin>16:00</horaFin>
             <funcionario>111</funcionario>
-            <recursos>R-002</recursos>
-            <estado>CANCELADA</estado>
-        </reserva>
-        <reserva id="279cba14-0820-433a-a730-4a9c6eb88c68">
-            <actividad>Capacitación</actividad>
-            <fecha>2026-09-22</fecha>
-            <horaInicio>09:00</horaInicio>
-            <horaFin>10:30</horaFin>
-            <funcionario>222</funcionario>
             <recursos>R-004</recursos>
             <estado>ACTIVADA</estado>
         </reserva>
-        <reserva id="2b5c571a-0389-4631-976b-1c718674b2f5">
-            <actividad>Reunión de equipo</actividad>
-            <fecha>2026-09-22</fecha>
-            <horaInicio>09:00</horaInicio>
+        <reserva id="8b7db09f-d1ab-4baf-a056-9d6145c768ba">
+            <actividad>Sesión de trabajo individual</actividad>
+            <fecha>2026-09-17</fecha>
+            <horaInicio>08:00</horaInicio>
             <horaFin>10:00</horaFin>
             <funcionario>111</funcionario>
+            <recursos>R-007</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="c96f880c-dc56-4da0-8e88-fe14e376e2bf">
+            <actividad>Presentación</actividad>
+            <fecha>2026-09-19</fecha>
+            <horaInicio>15:00</horaInicio>
+            <horaFin>16:30</horaFin>
+            <funcionario>111</funcionario>
+            <recursos>R-011</recursos>
+            <estado>CANCELADA</estado>
+        </reserva>
+        <reserva id="5c25f059-841d-4c1c-8a47-b2c6c3485ca5">
+            <actividad>Capacitación</actividad>
+            <fecha>2026-09-14</fecha>
+            <horaInicio>09:00</horaInicio>
+            <horaFin>11:00</horaFin>
+            <funcionario>222</funcionario>
+            <recursos>R-006</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="a1149a40-7699-44e5-9d98-7bd537418026">
+            <actividad>Entrevista</actividad>
+            <fecha>2026-09-16</fecha>
+            <horaInicio>10:00</horaInicio>
+            <horaFin>10:30</horaFin>
+            <funcionario>222</funcionario>
+            <recursos>R-008</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="53a174a2-a945-45d3-9ba6-6225aadb6b3b">
+            <actividad>Reunión de equipo</actividad>
+            <fecha>2026-09-18</fecha>
+            <horaInicio>13:00</horaInicio>
+            <horaFin>14:00</horaFin>
+            <funcionario>222</funcionario>
+            <recursos>R-002</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="e3d8aa62-069e-45a1-8a40-f482d78f7e4c">
+            <actividad>Sesión de trabajo individual</actividad>
+            <fecha>2026-09-20</fecha>
+            <horaInicio>07:00</horaInicio>
+            <horaFin>08:30</horaFin>
+            <funcionario>222</funcionario>
+            <recursos>R-009</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="05a20315-4937-4524-b994-5fb43afc0a5a">
+            <actividad>Sesión de laboratorio</actividad>
+            <fecha>2026-09-15</fecha>
+            <horaInicio>14:00</horaInicio>
+            <horaFin>15:00</horaFin>
+            <funcionario>333</funcionario>
+            <recursos>R-005</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="a39c9622-9d7d-489c-9cab-d8544391e2f9">
+            <actividad>Capacitación</actividad>
+            <fecha>2026-09-17</fecha>
+            <horaInicio>08:00</horaInicio>
+            <horaFin>09:30</horaFin>
+            <funcionario>333</funcionario>
+            <recursos>R-012</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="f280faab-8eb0-40b3-8f2d-07ba4518cf6c">
+            <actividad>Presentación</actividad>
+            <fecha>2026-09-19</fecha>
+            <horaInicio>15:00</horaInicio>
+            <horaFin>16:00</horaFin>
+            <funcionario>333</funcionario>
+            <recursos>R-003</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="16628a75-ce63-4cac-8d17-5ec5b1450f3e">
+            <actividad>Entrevista</actividad>
+            <fecha>2026-09-20</fecha>
+            <horaInicio>11:00</horaInicio>
+            <horaFin>11:30</horaFin>
+            <funcionario>333</funcionario>
+            <recursos>R-010</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="4c6941ee-7bf9-4ebe-a0c1-a544d91ad230">
+            <actividad>Reunión de equipo</actividad>
+            <fecha>2026-09-14</fecha>
+            <horaInicio>16:00</horaInicio>
+            <horaFin>17:00</horaFin>
+            <funcionario>444</funcionario>
             <recursos>R-001</recursos>
             <estado>ACTIVADA</estado>
         </reserva>
-        <reserva id="dd644113-b8d9-4112-b8ca-8b7c9d489272">
-            <actividad>Demo de producto</actividad>
-            <fecha>2026-09-28</fecha>
-            <horaInicio>13:00</horaInicio>
-            <horaFin>13:45</horaFin>
+        <reserva id="da1f3ed3-ef69-4e1c-a35c-ecb26bdfed70">
+            <actividad>Capacitación</actividad>
+            <fecha>2026-09-16</fecha>
+            <horaInicio>09:00</horaInicio>
+            <horaFin>11:00</horaFin>
             <funcionario>444</funcionario>
-            <recursos>R-009</recursos>
+            <recursos>R-006</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="cc844d0a-0a5f-41df-ae7b-909ccbb82cc2">
+            <actividad>Sesión de trabajo individual</actividad>
+            <fecha>2026-09-18</fecha>
+            <horaInicio>07:00</horaInicio>
+            <horaFin>08:00</horaFin>
+            <funcionario>444</funcionario>
+            <recursos>R-008</recursos>
             <estado>CANCELADA</estado>
         </reserva>
-        <reserva id="fc8d23ca-8636-4fe0-8d1b-0adb3c314842">
-            <actividad>j</actividad>
-            <fecha>2026-09-26</fecha>
+        <reserva id="91adf9b7-3217-4ec0-a5c8-9e54ab122bf2">
+            <actividad>Presentación</actividad>
+            <fecha>2026-09-20</fecha>
+            <horaInicio>13:00</horaInicio>
+            <horaFin>14:30</horaFin>
+            <funcionario>444</funcionario>
+            <recursos>R-011</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="3ec91fde-44dc-4c3e-b1b0-7ac7b5dd9fdb">
+            <actividad>Planificación semanal</actividad>
+            <fecha>2026-09-01</fecha>
+            <horaInicio>09:00</horaInicio>
+            <horaFin>10:00</horaFin>
+            <funcionario>111</funcionario>
+            <recursos>R-002</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="d4acda10-f4fd-47c2-8f44-dcd164838511">
+            <actividad>Mantenimiento de equipos</actividad>
+            <fecha>2026-09-02</fecha>
+            <horaInicio>08:00</horaInicio>
+            <horaFin>09:30</horaFin>
+            <funcionario>222</funcionario>
+            <recursos>R-006</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="0ef13a97-b4c5-4a97-ac9d-1bb14ed2778c">
+            <actividad>Onboarding</actividad>
+            <fecha>2026-09-04</fecha>
+            <horaInicio>10:00</horaInicio>
+            <horaFin>12:00</horaFin>
+            <funcionario>333</funcionario>
+            <recursos>R-007</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="aeaeaa71-7091-4fcd-b906-3f0f91a50c79">
+            <actividad>Revisión de proyecto</actividad>
+            <fecha>2026-09-07</fecha>
+            <horaInicio>14:00</horaInicio>
+            <horaFin>15:00</horaFin>
+            <funcionario>444</funcionario>
+            <recursos>R-003</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="3efffbcf-5600-4f6e-97b0-f30011630153">
+            <actividad>Sesión de mentoría</actividad>
+            <fecha>2026-09-08</fecha>
+            <horaInicio>11:00</horaInicio>
+            <horaFin>12:00</horaFin>
+            <funcionario>111</funcionario>
+            <recursos>R-005</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="46a641b3-751b-4cf4-93be-ec883f87a2c8">
+            <actividad>Capacitación</actividad>
+            <fecha>2026-09-08</fecha>
+            <horaInicio>11:00</horaInicio>
+            <horaFin>12:30</horaFin>
+            <funcionario>222</funcionario>
+            <recursos>R-009</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="ee87b0d5-5f0d-47d1-80df-e7c6ee4a0ca7">
+            <actividad>Entrevista</actividad>
+            <fecha>2026-09-09</fecha>
+            <horaInicio>09:00</horaInicio>
+            <horaFin>09:30</horaFin>
+            <funcionario>333</funcionario>
+            <recursos>R-012</recursos>
+            <estado>CANCELADA</estado>
+        </reserva>
+        <reserva id="baf81635-bec6-4555-8b83-b720017d8e20">
+            <actividad>Reunión de equipo</actividad>
+            <fecha>2026-09-11</fecha>
+            <horaInicio>16:00</horaInicio>
+            <horaFin>17:00</horaFin>
+            <funcionario>444</funcionario>
+            <recursos>R-001</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="63ee8030-d8a9-4cbb-9135-3180f0636dc0">
+            <actividad>Onboarding</actividad>
+            <fecha>2026-09-14</fecha>
+            <horaInicio>11:00</horaInicio>
+            <horaFin>12:00</horaFin>
+            <funcionario>111</funcionario>
+            <recursos>R-010</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="81f115e9-3335-4b3c-8c5f-752f124caacb">
+            <actividad>Sesión de mentoría</actividad>
+            <fecha>2026-09-14</fecha>
+            <horaInicio>11:30</horaInicio>
+            <horaFin>12:30</horaFin>
+            <funcionario>333</funcionario>
+            <recursos>R-004</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="6d273f04-655c-4b5b-82d1-bacfc9b8b23d">
+            <actividad>Planificación semanal</actividad>
+            <fecha>2026-09-21</fecha>
+            <horaInicio>08:00</horaInicio>
+            <horaFin>09:00</horaFin>
+            <funcionario>222</funcionario>
+            <recursos>R-002</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="0b1893bb-09fd-4596-a112-38d5d3d56751">
+            <actividad>Mantenimiento de equipos</actividad>
+            <fecha>2026-09-22</fecha>
+            <horaInicio>13:00</horaInicio>
+            <horaFin>14:30</horaFin>
+            <funcionario>444</funcionario>
+            <recursos>R-006</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="f9b06994-4298-4bf4-8acb-9316e2eaf79f">
+            <actividad>Revisión de proyecto</actividad>
+            <fecha>2026-09-24</fecha>
+            <horaInicio>15:00</horaInicio>
+            <horaFin>16:00</horaFin>
+            <funcionario>111</funcionario>
+            <recursos>R-008</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="4b703ec6-e106-439d-bdc6-799e95b07d03">
+            <actividad>Capacitación</actividad>
+            <fecha>2026-09-24</fecha>
+            <horaInicio>15:30</horaInicio>
+            <horaFin>17:00</horaFin>
+            <funcionario>444</funcionario>
+            <recursos>R-011</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="20f97904-8112-4c41-bbbf-553b922b965e">
+            <actividad>Sesión de trabajo individual</actividad>
+            <fecha>2026-09-25</fecha>
+            <horaInicio>07:00</horaInicio>
+            <horaFin>08:00</horaFin>
+            <funcionario>333</funcionario>
+            <recursos>R-003</recursos>
+            <estado>CANCELADA</estado>
+        </reserva>
+        <reserva id="14f58e61-1ec4-499a-9fbd-b2469dd656b8">
+            <actividad>Onboarding</actividad>
+            <fecha>2026-09-28</fecha>
+            <horaInicio>09:00</horaInicio>
+            <horaFin>11:00</horaFin>
+            <funcionario>222</funcionario>
+            <recursos>R-005</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="7e017b07-7257-498c-b0c9-b9007e52239b">
+            <actividad>Entrevista</actividad>
+            <fecha>2026-09-29</fecha>
+            <horaInicio>10:00</horaInicio>
+            <horaFin>10:30</horaFin>
+            <funcionario>111</funcionario>
+            <recursos>R-009</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="ee8de085-d224-42b1-bd35-0863580117b2">
+            <actividad>Presentación</actividad>
+            <fecha>2026-10-01</fecha>
+            <horaInicio>14:00</horaInicio>
+            <horaFin>15:30</horaFin>
+            <funcionario>333</funcionario>
+            <recursos>R-011</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="d5051cc9-6f1f-4b49-9a1f-74dec49fbdd0">
+            <actividad>Reunión de equipo</actividad>
+            <fecha>2026-10-01</fecha>
+            <horaInicio>14:30</horaInicio>
+            <horaFin>15:30</horaFin>
+            <funcionario>222</funcionario>
+            <recursos>R-001</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="2833cb62-bcc1-4c55-a9bc-7d3ccd1371cf">
+            <actividad>Sesión de trabajo individual</actividad>
+            <fecha>2026-10-02</fecha>
+            <horaInicio>08:00</horaInicio>
+            <horaFin>09:00</horaFin>
+            <funcionario>444</funcionario>
+            <recursos>R-007</recursos>
+            <estado>CANCELADA</estado>
+        </reserva>
+        <reserva id="5e02ecb0-0f36-47a8-8ef3-cb6387942cc6">
+            <actividad>Capacitación</actividad>
+            <fecha>2026-10-05</fecha>
             <horaInicio>09:00</horaInicio>
             <horaFin>11:00</horaFin>
             <funcionario>111</funcionario>
-            <recursos>R-005</recursos>
-            <estado>CANCELADA</estado>
+            <recursos>R-006</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="752a27eb-5ff9-405b-89b6-dc38b15b3416">
+            <actividad>Planificación semanal</actividad>
+            <fecha>2026-10-06</fecha>
+            <horaInicio>13:00</horaInicio>
+            <horaFin>14:00</horaFin>
+            <funcionario>333</funcionario>
+            <recursos>R-002</recursos>
+            <estado>ACTIVADA</estado>
+        </reserva>
+        <reserva id="853bc563-d045-4037-9377-442a3a1d9887">
+            <actividad>Mantenimiento de equipos</actividad>
+            <fecha>2026-09-01</fecha>
+            <horaInicio>09:30</horaInicio>
+            <horaFin>10:30</horaFin>
+            <funcionario>444</funcionario>
+            <recursos>R-012</recursos>
+            <estado>ACTIVADA</estado>
         </reserva>
     </reservas>
 </sistema>

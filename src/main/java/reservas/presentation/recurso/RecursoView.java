@@ -7,6 +7,7 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.util.StringConverter;
 
 import reservas.logic.CategoriaRecurso;
 import reservas.logic.Recurso;
@@ -80,6 +81,7 @@ public class RecursoView implements PropertyChangeListener {
                 txtId.setEditable(false);
                 txtDescripcion.setText(item.getDescripcion());
                 cmbCategoria.setValue(item.getCategoria());
+                cmbCategoria.setButtonCell(celdaCategoria());
             }
         });
     }
@@ -91,10 +93,12 @@ public class RecursoView implements PropertyChangeListener {
         cmbCategoria.setItems(model.getCategorias());
         cmbCategoria.setCellFactory(lv -> celdaCategoria());
         cmbCategoria.setButtonCell(celdaCategoria());
+        cmbCategoria.setConverter(convertidorCategoria());
 
         cmbFiltro.setItems(model.getCategorias());
         cmbFiltro.setCellFactory(lv -> celdaCategoria());
         cmbFiltro.setButtonCell(celdaCategoria());
+        cmbFiltro.setConverter(convertidorCategoria());
 
         colId.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getId()));
         colDescripcion.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getDescripcion()));
@@ -108,6 +112,19 @@ public class RecursoView implements PropertyChangeListener {
             @Override protected void updateItem(CategoriaRecurso c, boolean vacio) {
                 super.updateItem(c, vacio);
                 setText(vacio || c == null ? null : c.getDescripcion());
+            }
+        };
+    }
+
+    private StringConverter<CategoriaRecurso> convertidorCategoria() {
+        return new StringConverter<>() {
+            @Override
+            public String toString(CategoriaRecurso c) {
+                return c == null ? "" : c.getDescripcion();
+            }
+            @Override
+            public CategoriaRecurso fromString(String s) {
+                return null;
             }
         };
     }

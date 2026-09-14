@@ -80,6 +80,7 @@ public class RecursoController {
     }
 
     public void buscarPorCategoria(CategoriaRecurso categoria) {
+        model.setError("");
         List<Recurso> resultado = categoria == null
                 ? recursoRepositorio.listarTodos()
                 : recursoRepositorio.buscarPorCategoria(categoria.getId());
@@ -87,6 +88,7 @@ public class RecursoController {
     }
 
     public void buscar(String texto) {
+        model.setError("");
         if (texto == null || texto.isBlank()) {
             model.setRecursos(recursoRepositorio.listarTodos());
             return;

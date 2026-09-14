@@ -23,6 +23,7 @@ public class ReservaController {
     private final ReservaRepositorio reservaRepositorio;
     private final RecursoRepositorio recursoRepositorio;
     private final CategoriaRecursoRepositorio categoriaRepositorio;
+    private final AsignadorRecursos asignadorRecursos = new AsignadorRecursos();
 
     public ReservaController(ReservaView view, ReservaModel model, ReservaRepositorio reservaRepositorio, RecursoRepositorio recursoRepositorio, CategoriaRecursoRepositorio categoriaRepositorio) {
         this.view = view;
@@ -77,30 +78,16 @@ public class ReservaController {
                 .map(Recurso::getId)
                 .collect(Collectors.toSet());
 
-        List<Recurso> recursosAsignados = new ArrayList<>();
-        List<String> categoriasSinDisponibilidad = new ArrayList<>();
+        ResultadoAsignacion resultado = asignadorRecursos.asignar(
+                categoriasSeleccionadas, recursoRepositorio.listarTodos(), idsOcupados);
 
-        for (CategoriaRecurso categoria : categoriasSeleccionadas) {
-            Recurso disponible = recursoRepositorio.buscarPorCategoria(categoria.getId()).stream()
-                    .filter(r -> !idsOcupados.contains(r.getId()))
-                    .findFirst()
-                    .orElse(null);
-
-            if (disponible == null) {
-                categoriasSinDisponibilidad.add(categoria.getDescripcion());
-            } else {
-                recursosAsignados.add(disponible);
-                idsOcupados.add(disponible.getId());
-            }
-        }
-
-        if (!categoriasSinDisponibilidad.isEmpty()) {
-            model.setError("Sin disponibilidad para: " + String.join(", ", categoriasSinDisponibilidad));
+        if (!resultado.categoriasSinDisponibilidad().isEmpty()) {
+            model.setError("Sin disponibilidad para: " + String.join(", ", resultado.categoriasSinDisponibilidad()));
             return;
         }
 
         Reserva reserva = new Reserva(UUID.randomUUID().toString(), actividad, fecha, horaInicio, horaFin, funcionarioActual());
-        reserva.setRecursos(recursosAsignados);
+        reserva.setRecursos(resultado.asignados());
         reservaRepositorio.guardar(reserva);
 
         model.setError("");
@@ -182,6 +169,7 @@ public class ReservaController {
             return;
         }
         reservaRepositorio.actualizarEstado(seleccionada.getId(), EstadoReserva.CANCELADA);
+        model.setError("");
         cargarDatos();
     }
 }

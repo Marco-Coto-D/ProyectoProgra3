@@ -86,6 +86,7 @@ public class CategoriaController {
     }
 
     public void buscar(String texto) {
+        model.setError("");
         if (texto == null || texto.isBlank()) {
             model.setCategorias(categoriaRepositorio.listarTodos());
             return;
