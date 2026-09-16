@@ -28,9 +28,9 @@ public class IAService {
         ReservaExtraccion resultado = aiService.extraer(frase, listaCategorias, LocalDate.now().toString());
 
         String actividad     = resultado.getActividad();
-        LocalDate fecha      = LocalDate.parse(resultado.getFecha());
-        LocalTime horaInicio = LocalTime.parse(resultado.getHoraInicio());
-        LocalTime horaFin    = LocalTime.parse(resultado.getHoraFin());
+        LocalDate fecha      = ParseoSeguro.parsearFecha(resultado.getFecha());
+        LocalTime horaInicio = ParseoSeguro.parsearHora(resultado.getHoraInicio());
+        LocalTime horaFin    = ParseoSeguro.parsearHora(resultado.getHoraFin());
 
         List<CategoriaRecurso> categoriasElegidas = new ArrayList<>();
         if (resultado.getCategoriasRecurso() != null) {

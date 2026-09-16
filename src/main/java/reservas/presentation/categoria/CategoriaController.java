@@ -1,6 +1,7 @@
 package reservas.presentation.categoria;
 
 import reservas.data.interfaces.CategoriaRecursoRepositorio;
+import reservas.data.interfaces.RecursoRepositorio;
 import reservas.logic.CategoriaRecurso;
 import reservas.util.PdfUtil;
 
@@ -14,11 +15,13 @@ public class CategoriaController {
     private final CategoriaView view;
     private final CategoriaModel model;
     private final CategoriaRecursoRepositorio categoriaRepositorio;
+    private final RecursoRepositorio recursoRepositorio;
 
-    public CategoriaController(CategoriaView view, CategoriaModel model, CategoriaRecursoRepositorio categoriaRepositorio) {
+    public CategoriaController(CategoriaView view, CategoriaModel model, CategoriaRecursoRepositorio categoriaRepositorio, RecursoRepositorio recursoRepositorio) {
         this.view = view;
         this.model = model;
         this.categoriaRepositorio = categoriaRepositorio;
+        this.recursoRepositorio = recursoRepositorio;
 
         view.setController(this);
         view.setModel(model);
@@ -60,6 +63,10 @@ public class CategoriaController {
     public void borrar(CategoriaRecurso seleccionada) {
         if (seleccionada == null) {
             model.setError("Seleccioná una categoría de la tabla");
+            return;
+        }
+        if (!recursoRepositorio.buscarPorCategoria(seleccionada.getId()).isEmpty()) {
+            model.setError("No se puede borrar: hay recursos asociados a esta categoría");
             return;
         }
         categoriaRepositorio.borrar(seleccionada.getId());

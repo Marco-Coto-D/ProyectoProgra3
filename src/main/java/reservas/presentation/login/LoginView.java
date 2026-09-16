@@ -22,6 +22,7 @@ public class LoginView implements PropertyChangeListener {
     @FXML private TextField txtId;
     @FXML private PasswordField txtClave;
     @FXML private Button btnIngresar;
+    @FXML private Button btnCancelar;
     @FXML private Button btnCambiar;
     @FXML private Label lblError;
 
@@ -39,10 +40,13 @@ public class LoginView implements PropertyChangeListener {
             stage.setTitle("Ingreso al sistema");
             stage.getIcons().add(new Image(getClass().getResourceAsStream("/reservas/presentation/iconos/icon.png")));
             stage.setScene(new Scene(root));
+            stage.sizeToScene();
         } catch (IOException e) {
             throw new RuntimeException("No se pudo cargar LoginView.fxml", e);
         }
 
+        btnIngresar.setGraphic(icono("login.png"));
+        btnCancelar.setGraphic(icono("cancel.png"));
         btnCambiar.setGraphic(icono("clave.png"));
     }
 
@@ -56,6 +60,11 @@ public class LoginView implements PropertyChangeListener {
     @FXML
     private void onIngresar() {
         controller.intentarLogin(txtId.getText(), txtClave.getText());
+    }
+
+    @FXML
+    private void onCancelar() {
+        controller.cancelar();
     }
 
     @FXML

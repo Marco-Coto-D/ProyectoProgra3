@@ -13,6 +13,8 @@ import javafx.stage.Stage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class MainShellView implements PropertyChangeListener {
@@ -21,6 +23,7 @@ public class MainShellView implements PropertyChangeListener {
 
     private final Parent root;
     private final Stage stage;
+    private final Map<Tab, Runnable> refrescos = new HashMap<>();
     private MainShellModel model;
 
     public MainShellView(Stage stage) {
@@ -34,7 +37,7 @@ public class MainShellView implements PropertyChangeListener {
         }
 
         tabs.getSelectionModel().selectedItemProperty()
-                .addListener((obs, anterior, actual) -> cargarSiHaceFalta(actual));
+                .addListener((obs, anterior, actual) -> seleccionarPestana(actual));
     }
 
     public void setModel(MainShellModel model) {
@@ -43,14 +46,35 @@ public class MainShellView implements PropertyChangeListener {
     }
 
     public void agregarPestana(String titulo, String icono, Supplier<Parent> contenido) {
+        agregarPestana(titulo, icono, contenido, null);
+    }
+
+    public void agregarPestana(String titulo, String icono, Supplier<Parent> contenido, Runnable refrescar) {
         Tab tab = new Tab(titulo);
         tab.setClosable(false);
         tab.setUserData(contenido);
         tab.setGraphic(icono(icono, 18));
+        if (refrescar != null) {
+            refrescos.put(tab, refrescar);
+        }
         tabs.getTabs().add(tab);
 
         if (tabs.getTabs().size() == 1) {
             cargarSiHaceFalta(tab);
+        }
+    }
+
+    private void seleccionarPestana(Tab tab) {
+        if (tab == null) {
+            return;
+        }
+        if (tab.getContent() == null) {
+            cargarSiHaceFalta(tab);
+            return;
+        }
+        Runnable refrescar = refrescos.get(tab);
+        if (refrescar != null) {
+            refrescar.run();
         }
     }
 

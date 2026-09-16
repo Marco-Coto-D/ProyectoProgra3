@@ -120,7 +120,7 @@ public class ReservaView implements PropertyChangeListener {
     public void llenarDesdeIA(String actividad, LocalDate fecha,
                               LocalTime horaInicio, LocalTime horaFin,
                               List<CategoriaRecurso> categorias) {
-        txtActividad.setText(actividad);
+        txtActividad.setText(actividad == null ? "" : actividad);
         dpFecha.setValue(fecha);
         cmbHoraInicio.setValue(horaInicio);
         cmbHoraFin.setValue(horaFin);

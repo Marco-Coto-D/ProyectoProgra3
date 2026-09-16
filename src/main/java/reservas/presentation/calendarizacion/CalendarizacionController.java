@@ -44,6 +44,10 @@ public class CalendarizacionController {
         model.setCategorias(categoriaRepositorio.listarTodos());
     }
 
+    public void refrescar() {
+        cargarDatos();
+    }
+
     public void cargarCalendario(LocalDate fecha, CategoriaRecurso categoria) {
         if (fecha == null || categoria == null) {
             model.setError("");

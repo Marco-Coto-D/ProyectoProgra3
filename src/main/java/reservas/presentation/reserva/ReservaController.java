@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -41,6 +42,10 @@ public class ReservaController {
     private void cargarDatos() {
         model.setCategorias(categoriaRepositorio.listarTodos());
         model.setMisReservas(reservaRepositorio.listarPorFuncionario(funcionarioActual().getId()));
+    }
+
+    public void refrescar() {
+        cargarDatos();
     }
 
     private Funcionario funcionarioActual() {
@@ -137,10 +142,14 @@ public class ReservaController {
             try {
                 DatosReservaIA datos = ia.extraer(frase, snapshot);
                 Platform.runLater(() -> {
-                    view.llenarDesdeIA(datos.actividad(), datos.fecha(),
-                            datos.horaInicio(), datos.horaFin(), datos.categorias());
-                    model.setError("");
-                    view.setBtnExtraerDeshabilitado(false);
+                    try {
+                        view.llenarDesdeIA(datos.actividad(), datos.fecha(),
+                                datos.horaInicio(), datos.horaFin(), datos.categorias());
+                        boolean incompleto = datos.fecha() == null || datos.horaInicio() == null || datos.horaFin() == null;
+                        model.setError(incompleto ? "Revisá y completá los campos que quedaron vacíos" : "");
+                    } finally {
+                        view.setBtnExtraerDeshabilitado(false);
+                    }
                 });
             } catch (Exception e) {
                 Platform.runLater(() -> {
@@ -156,16 +165,9 @@ public class ReservaController {
             model.setError("Seleccioná una reserva de la tabla");
             return;
         }
-        if (seleccionada.getEstado() == EstadoReserva.CANCELADA) {
-            model.setError("Esta reserva ya está cancelada");
-            return;
-        }
-        if (seleccionada.getFecha().isBefore(LocalDate.now())) {
-            model.setError("No se puede cancelar una reserva pasada");
-            return;
-        }
-        if (seleccionada.getFecha().equals(LocalDate.now()) && !LocalTime.now().isBefore(seleccionada.getHoraFin())) {
-            model.setError("Esta reserva ya finalizó, no se puede cancelar");
+        Optional<String> error = ReglasReserva.validarCancelacion(seleccionada, LocalDate.now(), LocalTime.now());
+        if (error.isPresent()) {
+            model.setError(error.get());
             return;
         }
         reservaRepositorio.actualizarEstado(seleccionada.getId(), EstadoReserva.CANCELADA);

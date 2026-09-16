@@ -1,6 +1,8 @@
 package reservas.presentation.estadistica;
 
+import reservas.data.interfaces.CategoriaRecursoRepositorio;
 import reservas.data.interfaces.ReservaRepositorio;
+import reservas.logic.EstadisticaUtil;
 import reservas.logic.EstadoReserva;
 import reservas.util.PdfUtil;
 
@@ -9,7 +11,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public class EstadisticaController {
@@ -17,15 +18,18 @@ public class EstadisticaController {
     private final EstadisticaView view;
     private final EstadisticaModel model;
     private final ReservaRepositorio reservaRepositorio;
+    private final CategoriaRecursoRepositorio categoriaRepositorio;
 
     private Map<String, Long> ultimoConteoRecursos;
     private Map<String, Long> ultimoConteoActividades;
 
     public EstadisticaController(EstadisticaView view, EstadisticaModel model,
-                                 ReservaRepositorio reservaRepositorio) {
+                                 ReservaRepositorio reservaRepositorio,
+                                 CategoriaRecursoRepositorio categoriaRepositorio) {
         this.view = view;
         this.model = model;
         this.reservaRepositorio = reservaRepositorio;
+        this.categoriaRepositorio = categoriaRepositorio;
 
         view.setController(this);
         view.setModel(model);
@@ -41,15 +45,16 @@ public class EstadisticaController {
             return;
         }
 
-        Map<String, Long> conteo = reservaRepositorio.listarTodas().stream()
+        Map<String, Long> conteoPorId = reservaRepositorio.listarTodas().stream()
                 .filter(r -> r.getEstado() == EstadoReserva.ACTIVADA)
                 .filter(r -> !r.getFecha().isBefore(desde) && !r.getFecha().isAfter(hasta))
                 .flatMap(r -> r.getRecursos().stream())
                 .collect(Collectors.groupingBy(
-                        rec -> rec.getCategoria().getDescripcion(),
-                        TreeMap::new,
+                        rec -> rec.getCategoria().getId(),
                         Collectors.counting()
                 ));
+
+        Map<String, Long> conteo = EstadisticaUtil.resolverDescripciones(conteoPorId, categoriaRepositorio.listarTodos());
 
         ultimoConteoRecursos = conteo;
         model.setErrorRecursos("");
@@ -84,14 +89,15 @@ public class EstadisticaController {
             return;
         }
 
-        Map<String, Long> conteo = reservaRepositorio.listarTodas().stream()
+        Map<LocalDate, Long> conteoPorLunes = reservaRepositorio.listarTodas().stream()
                 .filter(r -> r.getEstado() == EstadoReserva.ACTIVADA)
                 .filter(r -> !r.getFecha().isBefore(desde) && !r.getFecha().isAfter(hasta))
                 .collect(Collectors.groupingBy(
-                        r -> r.getFecha().with(DayOfWeek.MONDAY).toString(),
-                        TreeMap::new,
+                        r -> r.getFecha().with(DayOfWeek.MONDAY),
                         Collectors.counting()
                 ));
+
+        Map<String, Long> conteo = EstadisticaUtil.completarSemanas(conteoPorLunes, desde, hasta);
 
         ultimoConteoActividades = conteo;
         model.setErrorActividades("");

@@ -30,6 +30,10 @@ public class LoginController {
         }
     }
 
+    public void cancelar() {
+        view.cerrar();
+    }
+
     public void abrirCambioClave(String id) {
         if (id == null || id.isBlank()) {
             model.setError("Escribí tu id primero");

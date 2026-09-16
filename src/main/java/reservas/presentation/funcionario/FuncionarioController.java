@@ -1,6 +1,8 @@
 package reservas.presentation.funcionario;
 
+import reservas.data.interfaces.AdministradorRepositorio;
 import reservas.data.interfaces.FuncionarioRepositorio;
+import reservas.data.interfaces.ReservaRepositorio;
 import reservas.logic.Funcionario;
 import reservas.logic.ValidadorId;
 import reservas.util.PdfUtil;
@@ -14,11 +16,15 @@ public class FuncionarioController {
     private final FuncionarioView view;
     private final FuncionarioModel model;
     private final FuncionarioRepositorio funcionarioRepositorio;
+    private final AdministradorRepositorio administradorRepositorio;
+    private final ReservaRepositorio reservaRepositorio;
 
-    public FuncionarioController(FuncionarioView view, FuncionarioModel model, FuncionarioRepositorio funcionarioRepositorio) {
+    public FuncionarioController(FuncionarioView view, FuncionarioModel model, FuncionarioRepositorio funcionarioRepositorio, AdministradorRepositorio administradorRepositorio, ReservaRepositorio reservaRepositorio) {
         this.view = view;
         this.model = model;
         this.funcionarioRepositorio = funcionarioRepositorio;
+        this.administradorRepositorio = administradorRepositorio;
+        this.reservaRepositorio = reservaRepositorio;
 
         view.setController(this);
         view.setModel(model);
@@ -30,13 +36,19 @@ public class FuncionarioController {
         model.setFuncionarios(funcionarioRepositorio.listarTodos());
     }
 
+    public void refrescar() {
+        cargarDatos();
+    }
+
     public void guardar(Funcionario seleccionado, String id, String nombre, String telefono) {
         if (id == null || id.isBlank() || nombre == null || nombre.isBlank() || telefono == null || telefono.isBlank()) {
             model.setError("Completá id, nombre y teléfono");
             return;
         }
+        boolean idYaExiste = funcionarioRepositorio.buscarPorId(id).isPresent()
+                || administradorRepositorio.buscarPorId(id).isPresent();
         Optional<String> errorId = ValidadorId.validarIdParaCrear(
-                seleccionado == null, funcionarioRepositorio.buscarPorId(id).isPresent(), id);
+                seleccionado == null, idYaExiste, id);
         if (errorId.isPresent()) {
             model.setError(errorId.get());
             return;
@@ -55,6 +67,10 @@ public class FuncionarioController {
     public void borrar(Funcionario seleccionado) {
         if (seleccionado == null) {
             model.setError("Seleccioná un funcionario de la tabla");
+            return;
+        }
+        if (!reservaRepositorio.listarPorFuncionario(seleccionado.getId()).isEmpty()) {
+            model.setError("No se puede borrar: el funcionario tiene reservas asociadas");
             return;
         }
         funcionarioRepositorio.borrar(seleccionado.getId());
