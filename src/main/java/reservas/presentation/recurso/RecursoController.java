@@ -4,10 +4,12 @@ import reservas.data.interfaces.CategoriaRecursoRepositorio;
 import reservas.data.interfaces.RecursoRepositorio;
 import reservas.logic.CategoriaRecurso;
 import reservas.logic.Recurso;
+import reservas.logic.ValidadorId;
 import reservas.util.PdfUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class RecursoController {
 
@@ -38,8 +40,10 @@ public class RecursoController {
             model.setError("Completá id, descripción y categoría");
             return;
         }
-        if (seleccionado == null && recursoRepositorio.buscarPorId(id).isPresent()) {
-            model.setError("Ya existe un recurso con el id " + id);
+        Optional<String> errorId = ValidadorId.validarIdParaCrear(
+                seleccionado == null, recursoRepositorio.buscarPorId(id).isPresent(), id);
+        if (errorId.isPresent()) {
+            model.setError(errorId.get());
             return;
         }
 
@@ -89,13 +93,14 @@ public class RecursoController {
 
     public void buscar(String texto) {
         model.setError("");
-        if (texto == null || texto.isBlank()) {
+        String textoLimpio = texto == null ? "" : texto.trim();
+        if (textoLimpio.isBlank()) {
             model.setRecursos(recursoRepositorio.listarTodos());
             return;
         }
-        recursoRepositorio.buscarPorId(texto).ifPresentOrElse(
+        recursoRepositorio.buscarPorId(textoLimpio).ifPresentOrElse(
                 r -> model.setRecursos(List.of(r)),
-                () -> model.setRecursos(recursoRepositorio.buscarPorTexto(texto))
+                () -> model.setRecursos(recursoRepositorio.buscarPorTexto(textoLimpio))
         );
     }
 }

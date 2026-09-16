@@ -87,13 +87,14 @@ public class CategoriaController {
 
     public void buscar(String texto) {
         model.setError("");
-        if (texto == null || texto.isBlank()) {
+        String textoLimpio = texto == null ? "" : texto.trim();
+        if (textoLimpio.isBlank()) {
             model.setCategorias(categoriaRepositorio.listarTodos());
             return;
         }
-        categoriaRepositorio.buscarPorId(texto).ifPresentOrElse(
+        categoriaRepositorio.buscarPorId(textoLimpio).ifPresentOrElse(
                 c -> model.setCategorias(List.of(c)),
-                () -> model.setCategorias(categoriaRepositorio.buscarPorDescripcion(texto))
+                () -> model.setCategorias(categoriaRepositorio.buscarPorDescripcion(textoLimpio))
         );
     }
 }

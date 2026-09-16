@@ -2,10 +2,12 @@ package reservas.presentation.funcionario;
 
 import reservas.data.interfaces.FuncionarioRepositorio;
 import reservas.logic.Funcionario;
+import reservas.logic.ValidadorId;
 import reservas.util.PdfUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class FuncionarioController {
 
@@ -33,8 +35,10 @@ public class FuncionarioController {
             model.setError("Completá id, nombre y teléfono");
             return;
         }
-        if (seleccionado == null && funcionarioRepositorio.buscarPorId(id).isPresent()) {
-            model.setError("Ya existe un funcionario con el id " + id);
+        Optional<String> errorId = ValidadorId.validarIdParaCrear(
+                seleccionado == null, funcionarioRepositorio.buscarPorId(id).isPresent(), id);
+        if (errorId.isPresent()) {
+            model.setError(errorId.get());
             return;
         }
 
@@ -78,13 +82,14 @@ public class FuncionarioController {
 
     public void buscar(String texto) {
         model.setError("");
-        if (texto == null || texto.isBlank()) {
+        String textoLimpio = texto == null ? "" : texto.trim();
+        if (textoLimpio.isBlank()) {
             model.setFuncionarios(funcionarioRepositorio.listarTodos());
             return;
         }
-        funcionarioRepositorio.buscarPorId(texto).ifPresentOrElse(
+        funcionarioRepositorio.buscarPorId(textoLimpio).ifPresentOrElse(
                 f -> model.setFuncionarios(List.of(f)),
-                () -> model.setFuncionarios(funcionarioRepositorio.buscarPorNombre(texto))
+                () -> model.setFuncionarios(funcionarioRepositorio.buscarPorNombre(textoLimpio))
         );
     }
 }
