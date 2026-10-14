@@ -7,6 +7,7 @@ import reservas.logic.Reserva;
 import reservas.logic.ResultadoAutenticacion;
 import reservas.logic.Service;
 import reservas.protocolo.Notificacion;
+import reservas.protocolo.Operacion;
 import reservas.protocolo.Peticion;
 import reservas.protocolo.Respuesta;
 import reservas.protocolo.TipoNotificacion;
@@ -65,6 +66,12 @@ public class ManejadorCliente implements Runnable {
     @SuppressWarnings("unchecked")
     private Respuesta atender(Peticion peticion) {
         try {
+            // Todo, salvo entrar y cambiar la clave desde el login, requiere haber iniciado sesión.
+            if (sesionId == null
+                    && peticion.getOperacion() != Operacion.AUTENTICAR
+                    && peticion.getOperacion() != Operacion.CAMBIAR_CLAVE) {
+                return Respuesta.error("Tenés que iniciar sesión");
+            }
             switch (peticion.getOperacion()) {
                 case AUTENTICAR:
                     ResultadoAutenticacion resultado = Service.instance().autenticar(
@@ -118,8 +125,7 @@ public class ManejadorCliente implements Runnable {
                             (Boolean) peticion.getArgumento(1));
                     return Respuesta.ok();
                 case LISTAR_MIS_RESERVAS:
-                    return Respuesta.ok(Service.instance().listarMisReservas(
-                            (String) peticion.getArgumento(0)));
+                    return Respuesta.ok(Service.instance().listarMisReservas(sesionId));
                 case LISTAR_RESERVAS_ENTRE:
                     return Respuesta.ok(Service.instance().listarReservasEntre(
                             (LocalDate) peticion.getArgumento(0),
@@ -130,14 +136,14 @@ public class ManejadorCliente implements Runnable {
                             (LocalDate) peticion.getArgumento(1),
                             (LocalTime) peticion.getArgumento(2),
                             (LocalTime) peticion.getArgumento(3),
-                            (String) peticion.getArgumento(4),
-                            (List<CategoriaRecurso>) peticion.getArgumento(5));
+                            sesionId,
+                            (List<CategoriaRecurso>) peticion.getArgumento(4));
                     Notificador.instance().notificar(
                             new Notificacion(TipoNotificacion.NUEVA_RESERVA, reserva), sesionId);
                     return Respuesta.ok(reserva);
                 case CANCELAR_RESERVA:
                     Service.instance().cancelarReserva(
-                            (String) peticion.getArgumento(0));
+                            (String) peticion.getArgumento(0), sesionId);
                     return Respuesta.ok();
                 case BORRAR_RECURSO:
                     Service.instance().borrarRecurso(

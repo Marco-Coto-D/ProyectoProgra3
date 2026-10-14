@@ -135,10 +135,10 @@ public class BackendProxy {
         enviar(new Peticion(Operacion.GUARDAR_FUNCIONARIO, funcionario, esNuevo));
     }
 
-    /** LISTAR_MIS_RESERVAS(funcionarioId). Todas las del funcionario, también las canceladas. */
+    /** LISTAR_MIS_RESERVAS(). Todas las del usuario que inició sesión, también las canceladas. */
     @SuppressWarnings("unchecked")
-    public List<Reserva> listarMisReservas(String funcionarioId) throws Exception {
-        Respuesta respuesta = enviar(new Peticion(Operacion.LISTAR_MIS_RESERVAS, funcionarioId));
+    public List<Reserva> listarMisReservas() throws Exception {
+        Respuesta respuesta = enviar(new Peticion(Operacion.LISTAR_MIS_RESERVAS));
         return (List<Reserva>) respuesta.getResultado();
     }
 
@@ -153,7 +153,8 @@ public class BackendProxy {
     }
 
     /**
-     * CREAR_RESERVA(actividad, fecha, horaInicio, horaFin, funcionarioId, categorias).
+     * CREAR_RESERVA(actividad, fecha, horaInicio, horaFin, categorias). La reserva
+     * queda a nombre del funcionario que inició sesión en esta conexión.
      * Devuelve la Reserva creada con los recursos que asignó el Backend. Si no
      * hay disponibilidad lanza Exception("Sin disponibilidad para: ..."); las
      * validaciones de fecha/hora también vuelven como Exception con su mensaje.
@@ -161,15 +162,16 @@ public class BackendProxy {
      * JavaFX (ObservableList) no es Serializable.
      */
     public Reserva crearReserva(String actividad, LocalDate fecha, LocalTime horaInicio, LocalTime horaFin,
-                                String funcionarioId, List<CategoriaRecurso> categorias) throws Exception {
+                                List<CategoriaRecurso> categorias) throws Exception {
         Respuesta respuesta = enviar(new Peticion(Operacion.CREAR_RESERVA,
-                actividad, fecha, horaInicio, horaFin, funcionarioId, new ArrayList<>(categorias)));
+                actividad, fecha, horaInicio, horaFin, new ArrayList<>(categorias)));
         return (Reserva) respuesta.getResultado();
     }
 
     /**
-     * CANCELAR_RESERVA(reservaId). Si no se puede cancelar lanza Exception con
-     * el motivo de ReglasReserva ("Esta reserva ya está cancelada", "No se puede
+     * CANCELAR_RESERVA(reservaId). Solo el dueño de la reserva puede cancelarla
+     * ("No podés cancelar una reserva de otro funcionario"). Si no se puede
+     * cancelar lanza Exception con el motivo de ReglasReserva ("Esta reserva ya está cancelada", "No se puede
      * cancelar una reserva pasada", "Esta reserva ya inició, no se puede cancelar")
      * o "La reserva no existe".
      */

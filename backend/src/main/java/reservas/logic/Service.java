@@ -18,7 +18,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Mismo patrón que el Service.java de referencia: singleton, fachada única
@@ -198,9 +197,10 @@ public class Service {
         }
     }
 
-    /** Todas las reservas del funcionario, también las canceladas. */
-    public List<Reserva> listarMisReservas(String funcionarioId) {
-        return reservaDao.findByFuncionario(funcionarioId);
+    /** Todas las reservas del usuario de la sesión, también las canceladas. */
+    public List<Reserva> listarMisReservas(String sesionId) throws Exception {
+        Usuario usuario = usuarioDeSesion(sesionId);
+        return reservaDao.findByFuncionario(usuario.getId());
     }
 
     /** Todas las reservas con fecha entre desde y hasta (inclusive), sin filtrar por estado. */
@@ -214,9 +214,15 @@ public class Service {
      * synchronized: con un hilo por cliente, dos pedidos simultáneos podrían
      * ver el mismo recurso libre y reservarlo dos veces; así se atienden de
      * a uno y el segundo ya ve ocupado lo que tomó el primero.
+     * La reserva queda a nombre del funcionario de la sesión, no de un id
+     * que mande el cliente.
      */
     public synchronized Reserva crearReserva(String actividad, LocalDate fecha, LocalTime horaInicio, LocalTime horaFin,
-                                             String funcionarioId, List<CategoriaRecurso> categorias) throws Exception {
+                                             String sesionId, List<CategoriaRecurso> categorias) throws Exception {
+        Usuario usuario = usuarioDeSesion(sesionId);
+        if (!(usuario instanceof Funcionario)) {
+            throw new Exception("Solo los funcionarios pueden hacer reservas");
+        }
         if (!horaFin.isAfter(horaInicio)) {
             throw new Exception("La hora de fin debe ser posterior a la hora de inicio");
         }
@@ -226,17 +232,14 @@ public class Service {
         if (fecha.equals(LocalDate.now()) && horaInicio.isBefore(LocalTime.now())) {
             throw new Exception("No podés reservar un horario de hoy que ya pasó");
         }
-        Funcionario funcionario = funcionarioDao.read(funcionarioId);
+        // Se relee de la base: el funcionario pudo cambiar o borrarse después del login.
+        Funcionario funcionario = funcionarioDao.read(usuario.getId());
         if (funcionario == null) {
             throw new Exception("El funcionario no existe");
         }
 
-        Set<String> idsOcupados = reservaDao.findEntre(fecha, fecha).stream()
-                .filter(r -> r.getEstado() == EstadoReserva.ACTIVADA)
-                .filter(r -> horaInicio.isBefore(r.getHoraFin()) && horaFin.isAfter(r.getHoraInicio()))
-                .flatMap(r -> r.getRecursos().stream())
-                .map(Recurso::getId)
-                .collect(Collectors.toSet());
+        Set<String> idsOcupados = ReglasReserva.recursosOcupados(
+                reservaDao.findEntre(fecha, fecha), fecha, horaInicio, horaFin);
 
         ResultadoAsignacion resultado = new AsignadorRecursos().asignar(categorias, recursoDao.findAll(), idsOcupados);
         if (!resultado.categoriasSinDisponibilidad().isEmpty()) {
@@ -250,13 +253,18 @@ public class Service {
     }
 
     /**
-     * Lee la reserva de la base (no confía en la copia del cliente) y aplica
-     * ReglasReserva con la fecha y hora del servidor.
+     * Lee la reserva de la base (no confía en la copia del cliente), comprueba
+     * que sea del usuario de la sesión (nadie cancela reservas ajenas, tampoco
+     * un administrador) y aplica ReglasReserva con la fecha y hora del servidor.
      */
-    public void cancelarReserva(String reservaId) throws Exception {
+    public void cancelarReserva(String reservaId, String sesionId) throws Exception {
+        Usuario usuario = usuarioDeSesion(sesionId);
         Reserva reserva = reservaDao.read(reservaId);
         if (reserva == null) {
             throw new Exception("La reserva no existe");
+        }
+        if (!reserva.getFuncionario().getId().equals(usuario.getId())) {
+            throw new Exception("No podés cancelar una reserva de otro funcionario");
         }
         Optional<String> error = ReglasReserva.validarCancelacion(reserva, LocalDate.now(), LocalTime.now());
         if (error.isPresent()) {
@@ -286,6 +294,15 @@ public class Service {
         String sesionId = UUID.randomUUID().toString();
         sesiones.put(sesionId, usuario);
         return new ResultadoAutenticacion(usuario, sesionId);
+    }
+
+    // Usuario que inició la sesión; si la sesión no existe, no se puede seguir.
+    private Usuario usuarioDeSesion(String sesionId) throws Exception {
+        Usuario usuario = sesionId == null ? null : sesiones.get(sesionId);
+        if (usuario == null) {
+            throw new Exception("Tenés que iniciar sesión");
+        }
+        return usuario;
     }
 
     public boolean sesionValida(String sesionId) {
