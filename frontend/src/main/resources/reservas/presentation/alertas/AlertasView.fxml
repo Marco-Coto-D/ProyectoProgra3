@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            prefWidth="260" minWidth="220" style="-fx-padding: 10; -fx-border-color: #d0d0d0; -fx-border-width: 0 0 0 1;">
+    <top>
+        <VBox spacing="2" style="-fx-padding: 0 0 8 0;">
+            <Label text="Alertas" style="-fx-font-weight: bold; -fx-font-size: 14;"/>
+            <Label text="Reservas de otros usuarios en esta sesión" wrapText="true"/>
+        </VBox>
+    </top>
+    <center>
+        <TableView fx:id="tablaAlertas">
+            <placeholder>
+                <Label text="No hay alertas"/>
+            </placeholder>
+            <columns>
+                <TableColumn fx:id="colActividad" text="Actividad" prefWidth="150"/>
+                <TableColumn fx:id="colVer" text="Ver" prefWidth="40" sortable="false" style="-fx-alignment: CENTER;"/>
+                <TableColumn fx:id="colDescartar" text="Desc." prefWidth="45" sortable="false" style="-fx-alignment: CENTER;"/>
+            </columns>
+        </TableView>
+    </center>
+</BorderPane>

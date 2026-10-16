@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <top>
+        <VBox spacing="5">
+            <TextField fx:id="txtId" promptText="Id"/>
+            <TextField fx:id="txtNombre" promptText="Nombre"/>
+            <TextField fx:id="txtTelefono" promptText="Teléfono"/>
+            <HBox spacing="10">
+                <Button fx:id="btnGuardar" text="Guardar"/>
+                <Button fx:id="btnBorrar" text="Borrar seleccionado"/>
+                <Button fx:id="btnLimpiar" text="Limpiar"/>
+                <Button fx:id="btnPdf" text="Generar PDF"/>
+            </HBox>
+            <Label fx:id="lblError" style="-fx-text-fill: red;"/>
+        </VBox>
+    </top>
+    <center>
+        <VBox spacing="5">
+            <HBox spacing="10">
+                <TextField fx:id="txtBusqueda" promptText="Buscar por id o nombre"/>
+                <Button fx:id="btnBuscar" text="Buscar"/>
+            </HBox>
+            <TableView fx:id="tablaFuncionarios">
+                <columns>
+                    <TableColumn fx:id="colId" text="Id"/>
+                    <TableColumn fx:id="colNombre" text="Nombre"/>
+                    <TableColumn fx:id="colTelefono" text="Teléfono"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane>

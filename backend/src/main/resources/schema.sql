@@ -1,10 +1,4 @@
--- Esquema de la base de datos "reservas".
--- Tablas: categoria_recurso, funcionario, administrador, recurso, reserva
--- y reserva_recurso (los recursos asignados a cada reserva).
-
--- Forzar utf8mb4 en la sesión del cliente: sin esto, si el cliente mysql
--- arranca en latin1 (pasa al hacer `docker exec ... mysql < schema.sql`),
--- las tildes de este archivo se guardan doble-codificadas ("CategorÃ­a").
+//-- sin esto las tildes se guardan mal si se carga con docker exec
 SET NAMES utf8mb4;
 
 CREATE DATABASE IF NOT EXISTS reservas
@@ -16,7 +10,6 @@ CREATE TABLE IF NOT EXISTS categoria_recurso (
     descripcion VARCHAR(150) NOT NULL
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 
--- Fila de prueba para validar el viaje de punta a punta del Paso 2.
 INSERT INTO categoria_recurso (id, descripcion)
 VALUES ('CAT-PRUEBA', 'Categoría de prueba (Paso 2)')
 ON DUPLICATE KEY UPDATE descripcion = VALUES(descripcion);
@@ -33,8 +26,7 @@ CREATE TABLE IF NOT EXISTS administrador (
     clave VARCHAR(100) NOT NULL
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 
--- Administrador inicial: el mismo que había en data/sistema.xml (id 999, clave 999).
--- Sin al menos uno no hay forma de entrar al sistema para crear el resto.
+// -- admin inicial, sin al menos uno no hay forma de entrar
 INSERT INTO administrador (id, clave) VALUES ('999', '999')
 ON DUPLICATE KEY UPDATE clave = clave;
 

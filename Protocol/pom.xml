@@ -13,12 +13,6 @@
     <artifactId>Protocol</artifactId>
     <packaging>jar</packaging>
 
-    <!--
-        Entidades de dominio (reservas.logic) y clases del protocolo de
-        sockets (reservas.protocolo), compartidas entre backend y frontend.
-        Sin dependencias de JavaFX, JAXB ni base de datos.
-    -->
-
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

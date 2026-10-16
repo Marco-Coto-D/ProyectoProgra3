@@ -3,11 +3,6 @@ package reservas.data.mysql;
 import java.sql.*;
 import java.util.Properties;
 
-/**
- * Mismo patrón que el Database.java de referencia del profesor (proyecto
- * "Personas"): singleton con instance(), conexión única abierta en el
- * constructor, configuración leída de database.properties.
- */
 public class Database {
     private static Database theInstance;
     public static Database instance(){

@@ -8,12 +8,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Mismo estilo que el DepartamentoDao de referencia: constructor que toma
- * db = Database.instance(), findAll() y un from(ResultSet, alias) (público
- * para que RecursoDao lo reutilice en sus joins).
- * read devuelve null si no existe el id.
- */
 public class CategoriaRecursoDao {
     Database db;
 

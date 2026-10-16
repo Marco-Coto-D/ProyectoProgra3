@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <center>
+        <ScrollPane fitToWidth="false" fitToHeight="false">
+            <HBox spacing="20" style="-fx-padding: 10;">
+
+                <!-- Sección Recursos -->
+                <VBox spacing="8" style="-fx-padding: 8; -fx-border-color: #bdc3c7; -fx-border-width: 1;">
+                    <Label text="Recursos reservados por categoría"
+                           style="-fx-font-weight: bold; -fx-font-size: 13;"/>
+                    <HBox spacing="5">
+                        <DatePicker fx:id="dpDesdeRecursos" promptText="Desde"/>
+                        <DatePicker fx:id="dpHastaRecursos" promptText="Hasta"/>
+                        <Button fx:id="btnCargarRecursos" text="Cargar"/>
+                        <Button fx:id="btnPdfRecursos" text="Generar PDF"/>
+                    </HBox>
+                    <Label fx:id="lblErrorRecursos" style="-fx-text-fill: red;"/>
+                    <TableView fx:id="tablaRecursos" prefHeight="180">
+                        <columns>
+                            <TableColumn fx:id="colCategoria" text="Categoría" prefWidth="150"/>
+                            <TableColumn fx:id="colCantidadRecurso" text="Cantidad" prefWidth="80"/>
+                        </columns>
+                    </TableView>
+                    <BarChart fx:id="chartRecursos" prefHeight="250" prefWidth="380" animated="false">
+                        <xAxis><CategoryAxis label="Categoría"/></xAxis>
+                        <yAxis><NumberAxis label="Cantidad"/></yAxis>
+                    </BarChart>
+                </VBox>
+
+                <!-- Sección Actividades -->
+                <VBox spacing="8" style="-fx-padding: 8; -fx-border-color: #bdc3c7; -fx-border-width: 1;">
+                    <Label text="Actividades programadas por semana"
+                           style="-fx-font-weight: bold; -fx-font-size: 13;"/>
+                    <HBox spacing="5">
+                        <DatePicker fx:id="dpDesdeActividades" promptText="Desde"/>
+                        <DatePicker fx:id="dpHastaActividades" promptText="Hasta"/>
+                        <Button fx:id="btnCargarActividades" text="Cargar"/>
+                        <Button fx:id="btnPdfActividades" text="Generar PDF"/>
+                    </HBox>
+                    <Label fx:id="lblErrorActividades" style="-fx-text-fill: red;"/>
+                    <TableView fx:id="tablaActividades" prefHeight="180">
+                        <columns>
+                            <TableColumn fx:id="colSemana" text="Semana (lunes)" prefWidth="150"/>
+                            <TableColumn fx:id="colCantidadActividad" text="Cantidad" prefWidth="80"/>
+                        </columns>
+                    </TableView>
+                    <BarChart fx:id="chartActividades" prefHeight="250" prefWidth="380" animated="false">
+                        <xAxis><CategoryAxis label="Semana"/></xAxis>
+                        <yAxis><NumberAxis label="Cantidad"/></yAxis>
+                    </BarChart>
+                </VBox>
+
+            </HBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

@@ -13,17 +13,6 @@
     <artifactId>frontend</artifactId>
     <packaging>jar</packaging>
 
-    <!--
-        Aplicación JavaFX: solo capa Presentation (MVC) + BackendProxy.
-        Sin ninguna referencia a reservas.data ni a base de datos en el
-        código principal (main). La dependencia a "backend" de más abajo
-        es SOLO de scope test: existe nada más para que la prueba manual
-        de este paso pueda arrancar un Servidor real en el mismo proceso
-        y así validar el viaje de punta a punta. En producción, Frontend
-        y Backend corren en procesos separados y nunca se referencian en
-        código de producción.
-    -->
-
     <properties>
         <javafx.version>21.0.2</javafx.version>
     </properties>
@@ -55,12 +44,6 @@
             <version>7.2.3</version>
         </dependency>
         <dependency>
-            <groupId>org.example</groupId>
-            <artifactId>backend</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>5.10.2</version>
@@ -70,7 +53,6 @@
 
     <build>
         <plugins>
-            <!-- Se corre con: ./mvnw -pl frontend javafx:run (con el backend levantado). -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>

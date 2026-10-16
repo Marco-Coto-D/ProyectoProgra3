@@ -19,17 +19,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-/**
- * Atiende a un cliente conectado: lee una Peticion, la resuelve llamando
- * a Service.instance() y escribe la Respuesta de vuelta. Un hilo por
- * cliente, como pide el enunciado. Después de un CREAR_RESERVA exitoso
- * avisa al resto de los clientes por el Notificador.
- */
 public class ManejadorCliente implements Runnable {
-
     private final Socket socket;
-    // sesionId de esta conexión, una vez que hizo AUTENTICAR. Sirve para no
-    // notificarle a quien originó el cambio y para cerrar su sesión al irse.
     private String sesionId;
 
     public ManejadorCliente(Socket socket) {
@@ -41,7 +32,6 @@ public class ManejadorCliente implements Runnable {
         try (ObjectOutputStream salida = new ObjectOutputStream(socket.getOutputStream())) {
             salida.flush();
             try (ObjectInputStream entrada = new ObjectInputStream(socket.getInputStream())) {
-
                 while (true) {
                     Peticion peticion = (Peticion) entrada.readObject();
                     System.out.println("Peticion recibida: " + peticion);
@@ -66,7 +56,6 @@ public class ManejadorCliente implements Runnable {
     @SuppressWarnings("unchecked")
     private Respuesta atender(Peticion peticion) {
         try {
-            // Todo, salvo entrar y cambiar la clave desde el login, requiere haber iniciado sesión.
             if (sesionId == null
                     && peticion.getOperacion() != Operacion.AUTENTICAR
                     && peticion.getOperacion() != Operacion.CAMBIAR_CLAVE) {

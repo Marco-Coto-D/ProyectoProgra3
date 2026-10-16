@@ -7,17 +7,8 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-/**
- * Punto de entrada del Backend. Dos ServerSocket:
- * - PUERTO: peticion/respuesta, un ManejadorCliente (un hilo) por cliente.
- * - PUERTO_NOTIFICACIONES: cada Frontend se conecta después del login y
- *   manda su sesionId; si es válido, queda registrado en el Notificador
- *   para recibir las Notificacion que el Backend empuja.
- */
 public class Servidor {
 
-    // 5000 y 7000 están ocupados en macOS por AirPlay Receiver (ControlCenter);
-    // se usa 5555 para evitar ese choque en las máquinas del equipo.
     public static final int PUERTO = 5555;
     public static final int PUERTO_NOTIFICACIONES = 5556;
 
@@ -48,7 +39,6 @@ public class Servidor {
         }
     }
 
-    // Lo primero que manda el Frontend por este socket es su sesionId.
     private static void registrarSuscriptor(Socket socket) {
         try {
             ObjectOutputStream salida = new ObjectOutputStream(socket.getOutputStream());

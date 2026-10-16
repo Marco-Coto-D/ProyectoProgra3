@@ -3,13 +3,7 @@ package reservas.protocolo;
 import java.io.Serializable;
 import java.util.Arrays;
 
-/**
- * Mensaje que el Frontend envía al Backend por el socket de petición/respuesta.
- * Los argumentos viajan en el orden que cada Operacion espera (documentado
- * en el BackendProxy, que es quien arma cada Peticion).
- */
 public class Peticion implements Serializable {
-
     private static final long serialVersionUID = 1L;
 
     private final Operacion operacion;

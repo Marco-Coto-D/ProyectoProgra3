@@ -2,13 +2,7 @@ package reservas.protocolo;
 
 import java.io.Serializable;
 
-/**
- * Mensaje que el Backend devuelve como respuesta a una Peticion.
- * Si ok es false, error trae el mensaje para mostrarle al usuario
- * (el mismo texto que antes iba directo a model.setError(...)).
- */
 public class Respuesta implements Serializable {
-
     private static final long serialVersionUID = 1L;
 
     private final boolean ok;

@@ -19,12 +19,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Mismo patrón que el Service.java de referencia: singleton, fachada única
- * del Backend que delega a los Dao. A diferencia del ejemplo del profesor,
- * acá no lo llama directo la Presentation: lo llama el ManejadorCliente de
- * cada conexión por socket.
- */
 public class Service {
     private static Service theInstance;
 
@@ -39,8 +33,7 @@ public class Service {
     private AdministradorDao administradorDao;
     private ReservaDao reservaDao;
     private AutenticacionService autenticacionService;
-    // Sesiones abiertas (sesionId -> Usuario). Concurrent porque cada cliente
-    // tiene su propio hilo.
+    // concurrent pq cada cliente corre en su propio hilo
     private final Map<String, Usuario> sesiones = new ConcurrentHashMap<>();
 
     private Service(){
@@ -81,7 +74,6 @@ public class Service {
         return categoriaRecursoDao.findByDescripcion(textoLimpio);
     }
 
-    /** Si la categoría viene sin id es nueva: se le genera CAT-### y se crea; si no, se actualiza. */
     public void guardarCategoria(CategoriaRecurso categoria) {
         if (categoria.getId() == null) {
             categoria.setId(generarIdCategoria());
@@ -98,7 +90,6 @@ public class Service {
         categoriaRecursoDao.delete(categoriaId);
     }
 
-    // Misma lógica que tenía CategoriaController.generarId() en el proyecto viejo.
     private String generarIdCategoria() {
         Pattern patron = Pattern.compile("CAT-(\\d+)");
         int maximo = categoriaRecursoDao.findAll().stream()
@@ -127,7 +118,6 @@ public class Service {
         return recursoDao.findByTexto(textoLimpio);
     }
 
-    /** Cuenta también las reservas canceladas, igual que el RecursoController viejo. */
     public void borrarRecurso(String recursoId) throws Exception {
         if (DependenciaUtil.recursoTieneReservas(reservaDao.findAll(), recursoId)) {
             throw new Exception("No se puede borrar: hay reservas asociadas a este recurso");
@@ -135,7 +125,6 @@ public class Service {
         recursoDao.delete(recursoId);
     }
 
-    /** Con categoriaId null devuelve todos, igual que el RecursoController viejo. */
     public List<Recurso> buscarRecursosPorCategoria(String categoriaId) {
         if (categoriaId == null) {
             return recursoDao.findAll();
@@ -143,10 +132,6 @@ public class Service {
         return recursoDao.findByCategoria(categoriaId);
     }
 
-    /**
-     * esNuevo lo decide el Frontend (antes era "no hay nada seleccionado en
-     * la tabla"). Si es nuevo y el id ya existe, ValidadorId da el error.
-     */
     public void guardarRecurso(Recurso recurso, boolean esNuevo) throws Exception {
         boolean idYaExiste = recursoDao.read(recurso.getId()) != null;
         Optional<String> errorId = ValidadorId.validarIdParaCrear(esNuevo, idYaExiste, recurso.getId());
@@ -176,12 +161,6 @@ public class Service {
         return funcionarioDao.findByNombre(textoLimpio);
     }
 
-    /**
-     * Mismo criterio que guardarRecurso. El id no puede chocar ni con otro
-     * funcionario ni con un administrador (comparten el login). Un
-     * funcionario nuevo arranca con su id como clave; uno editado conserva
-     * la clave que trae.
-     */
     public void guardarFuncionario(Funcionario funcionario, boolean esNuevo) throws Exception {
         boolean idYaExiste = funcionarioDao.read(funcionario.getId()) != null
                 || administradorDao.read(funcionario.getId()) != null;
@@ -197,26 +176,16 @@ public class Service {
         }
     }
 
-    /** Todas las reservas del usuario de la sesión, también las canceladas. */
     public List<Reserva> listarMisReservas(String sesionId) throws Exception {
         Usuario usuario = usuarioDeSesion(sesionId);
         return reservaDao.findByFuncionario(usuario.getId());
     }
 
-    /** Todas las reservas con fecha entre desde y hasta (inclusive), sin filtrar por estado. */
     public List<Reserva> listarReservasEntre(LocalDate desde, LocalDate hasta) {
         return reservaDao.findEntre(desde, hasta);
     }
 
-    /**
-     * Misma lógica que ReservaController.crear del proyecto viejo, con las
-     * validaciones de tiempo hechas con la fecha y hora del servidor.
-     * synchronized: con un hilo por cliente, dos pedidos simultáneos podrían
-     * ver el mismo recurso libre y reservarlo dos veces; así se atienden de
-     * a uno y el segundo ya ve ocupado lo que tomó el primero.
-     * La reserva queda a nombre del funcionario de la sesión, no de un id
-     * que mande el cliente.
-     */
+    // synchronized pq si dos piden el mismo recurso a la vez los dos lo ven libre y queda reservado doble
     public synchronized Reserva crearReserva(String actividad, LocalDate fecha, LocalTime horaInicio, LocalTime horaFin,
                                              String sesionId, List<CategoriaRecurso> categorias) throws Exception {
         Usuario usuario = usuarioDeSesion(sesionId);
@@ -232,7 +201,7 @@ public class Service {
         if (fecha.equals(LocalDate.now()) && horaInicio.isBefore(LocalTime.now())) {
             throw new Exception("No podés reservar un horario de hoy que ya pasó");
         }
-        // Se relee de la base: el funcionario pudo cambiar o borrarse después del login.
+        // se vuelve a leer de la base por si lo borraron despues del login
         Funcionario funcionario = funcionarioDao.read(usuario.getId());
         if (funcionario == null) {
             throw new Exception("El funcionario no existe");
@@ -252,11 +221,6 @@ public class Service {
         return reserva;
     }
 
-    /**
-     * Lee la reserva de la base (no confía en la copia del cliente), comprueba
-     * que sea del usuario de la sesión (nadie cancela reservas ajenas, tampoco
-     * un administrador) y aplica ReglasReserva con la fecha y hora del servidor.
-     */
     public void cancelarReserva(String reservaId, String sesionId) throws Exception {
         Usuario usuario = usuarioDeSesion(sesionId);
         Reserva reserva = reservaDao.read(reservaId);
@@ -273,7 +237,6 @@ public class Service {
         reservaDao.updateEstado(reservaId, EstadoReserva.CANCELADA);
     }
 
-    /** Cuenta también las reservas canceladas, igual que el FuncionarioController viejo. */
     public void borrarFuncionario(String funcionarioId) throws Exception {
         if (!reservaDao.findByFuncionario(funcionarioId).isEmpty()) {
             throw new Exception("No se puede borrar: el funcionario tiene reservas asociadas");
@@ -281,7 +244,6 @@ public class Service {
         funcionarioDao.delete(funcionarioId);
     }
 
-    /** Usa las categorías de la base como lista de opciones para el modelo. */
     public DatosReservaIA extraerIA(String frase) throws Exception {
         return new IAService().extraer(frase, categoriaRecursoDao.findAll());
     }
@@ -296,7 +258,6 @@ public class Service {
         return new ResultadoAutenticacion(usuario, sesionId);
     }
 
-    // Usuario que inició la sesión; si la sesión no existe, no se puede seguir.
     private Usuario usuarioDeSesion(String sesionId) throws Exception {
         Usuario usuario = sesionId == null ? null : sesiones.get(sesionId);
         if (usuario == null) {
@@ -309,7 +270,6 @@ public class Service {
         return sesionId != null && sesiones.containsKey(sesionId);
     }
 
-    /** Se llama cuando se cierra la conexión de peticiones: borra la sesión y corta sus notificaciones. */
     public void cerrarSesion(String sesionId) {
         sesiones.remove(sesionId);
         Notificador.instance().quitar(sesionId);
