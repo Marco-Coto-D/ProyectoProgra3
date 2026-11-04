@@ -1,5 +1,7 @@
 package reservas.util;
 
+import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.layout.element.Image;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
@@ -18,6 +20,11 @@ public class PdfUtil {
     private static final DateTimeFormatter SELLO = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
 
     public static void generar(String titulo, List<String> encabezados, List<List<String>> filas) throws Exception {
+        generar(titulo, encabezados, filas, null);
+    }
+
+    /** igual, pero con un gráfico (PNG) debajo de la tabla */
+    public static void generar(String titulo, List<String> encabezados, List<List<String>> filas, byte[] grafico) throws Exception {
         File dir = new File("reportes");
         dir.mkdirs();
 
@@ -38,6 +45,12 @@ public class PdfUtil {
             }
         }
         documento.add(tabla);
+        if (grafico != null) {
+            Image imagen = new Image(ImageDataFactory.create(grafico));
+            imagen.scaleToFit(480, 320);
+            imagen.setMarginTop(15);
+            documento.add(imagen);
+        }
         documento.close();
 
         Desktop.getDesktop().open(archivo);

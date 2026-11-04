@@ -3,6 +3,7 @@ package reservas.presentation.estadistica;
 import reservas.logic.EstadisticaUtil;
 import reservas.logic.EstadoReserva;
 import reservas.proxy.BackendProxy;
+import reservas.util.FechaConverter;
 import reservas.util.PdfUtil;
 
 import java.time.DayOfWeek;
@@ -16,9 +17,6 @@ public class EstadisticaController {
     private final EstadisticaView view;
     private final EstadisticaModel model;
     private final BackendProxy proxy;
-
-    private Map<String, Long> ultimoConteoRecursos;
-    private Map<String, Long> ultimoConteoActividades;
 
     public EstadisticaController(EstadisticaView view, EstadisticaModel model,
                                  BackendProxy proxy) {
@@ -55,23 +53,31 @@ public class EstadisticaController {
             return;
         }
 
-        ultimoConteoRecursos = conteo;
         model.setErrorRecursos("");
-        view.mostrarRecursos(conteo);
+        model.setConteoRecursos(conteo);
+    }
+
+    public void fechaInvalidaRecursos() {
+        model.setErrorRecursos(FechaConverter.MENSAJE_INVALIDA);
+    }
+
+    public void fechaInvalidaActividades() {
+        model.setErrorActividades(FechaConverter.MENSAJE_INVALIDA);
     }
 
     public void printRecursos() {
-        if (ultimoConteoRecursos == null || ultimoConteoRecursos.isEmpty()) {
+        Map<String, Long> conteo = model.getConteoRecursos();
+        if (conteo == null || conteo.isEmpty()) {
             model.setErrorRecursos("Cargá los datos antes de generar el PDF");
             return;
         }
         List<String> encabezados = List.of("Categoría", "Cantidad");
         List<List<String>> filas = new ArrayList<>();
-        for (Map.Entry<String, Long> e : ultimoConteoRecursos.entrySet()) {
+        for (Map.Entry<String, Long> e : conteo.entrySet()) {
             filas.add(List.of(e.getKey(), String.valueOf(e.getValue())));
         }
         try {
-            PdfUtil.generar("Estadística - Recursos por categoría", encabezados, filas);
+            PdfUtil.generar("Estadística - Recursos por categoría", encabezados, filas, view.graficoRecursos());
             model.setErrorRecursos("");
         } catch (Exception e) {
             model.setErrorRecursos("Error al generar PDF: " + e.getMessage());
@@ -103,23 +109,23 @@ public class EstadisticaController {
 
         Map<String, Long> conteo = EstadisticaUtil.completarSemanas(conteoPorLunes, desde, hasta);
 
-        ultimoConteoActividades = conteo;
         model.setErrorActividades("");
-        view.mostrarActividades(conteo);
+        model.setConteoActividades(conteo);
     }
 
     public void printActividades() {
-        if (ultimoConteoActividades == null || ultimoConteoActividades.isEmpty()) {
+        Map<String, Long> conteo = model.getConteoActividades();
+        if (conteo == null || conteo.isEmpty()) {
             model.setErrorActividades("Cargá los datos antes de generar el PDF");
             return;
         }
         List<String> encabezados = List.of("Semana (lunes)", "Cantidad");
         List<List<String>> filas = new ArrayList<>();
-        for (Map.Entry<String, Long> e : ultimoConteoActividades.entrySet()) {
+        for (Map.Entry<String, Long> e : conteo.entrySet()) {
             filas.add(List.of(e.getKey(), String.valueOf(e.getValue())));
         }
         try {
-            PdfUtil.generar("Estadística - Actividades por semana", encabezados, filas);
+            PdfUtil.generar("Estadística - Actividades por semana", encabezados, filas, view.graficoActividades());
             model.setErrorActividades("");
         } catch (Exception e) {
             model.setErrorActividades("Error al generar PDF: " + e.getMessage());

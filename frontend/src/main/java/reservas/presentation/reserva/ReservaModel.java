@@ -11,10 +11,12 @@ import java.util.List;
 public class ReservaModel extends AbstractModel {
 
     public static final String ERROR = "error";
+    public static final String EXITO = "exito";
 
     private final ObservableList<Reserva> misReservas = FXCollections.observableArrayList();
     private final ObservableList<CategoriaRecurso> categorias = FXCollections.observableArrayList();
     private String error = "";
+    private String exito = "";
 
     public ObservableList<Reserva> getMisReservas() {
         return misReservas;
@@ -39,5 +41,15 @@ public class ReservaModel extends AbstractModel {
     public void setError(String error) {
         this.error = error;
         firePropertyChange(ERROR);
+    }
+
+    public String getExito() {
+        return exito;
+    }
+
+    // va en el mismo lugar que los errores, pero en verde
+    public void setExito(String exito) {
+        this.exito = exito;
+        firePropertyChange(EXITO);
     }
 }

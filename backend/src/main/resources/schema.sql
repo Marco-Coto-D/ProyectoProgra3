@@ -1,4 +1,4 @@
-//-- sin esto las tildes se guardan mal si se carga con docker exec
+-- sin esto las tildes se guardan mal si se carga con docker exec
 SET NAMES utf8mb4;
 
 CREATE DATABASE IF NOT EXISTS reservas
@@ -9,10 +9,6 @@ CREATE TABLE IF NOT EXISTS categoria_recurso (
     id          VARCHAR(50)  NOT NULL PRIMARY KEY,
     descripcion VARCHAR(150) NOT NULL
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-
-INSERT INTO categoria_recurso (id, descripcion)
-VALUES ('CAT-PRUEBA', 'Categoría de prueba (Paso 2)')
-ON DUPLICATE KEY UPDATE descripcion = VALUES(descripcion);
 
 CREATE TABLE IF NOT EXISTS funcionario (
     id       VARCHAR(50)  NOT NULL PRIMARY KEY,
@@ -26,7 +22,7 @@ CREATE TABLE IF NOT EXISTS administrador (
     clave VARCHAR(100) NOT NULL
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 
-// -- admin inicial, sin al menos uno no hay forma de entrar
+-- admin inicial, sin al menos uno no hay forma de entrar
 INSERT INTO administrador (id, clave) VALUES ('999', '999')
 ON DUPLICATE KEY UPDATE clave = clave;
 

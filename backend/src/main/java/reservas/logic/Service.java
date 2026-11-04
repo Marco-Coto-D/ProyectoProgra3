@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 public class Service {
     private static Service theInstance;
 
-    public static Service instance() {
+    public static synchronized Service instance() {
         if (theInstance == null) theInstance = new Service();
         return theInstance;
     }
@@ -58,11 +58,13 @@ public class Service {
         }
     }
 
+    // abierta a los funcionarios: la necesitan para armar la reserva, Calendarización y Estadísticas
     public List<CategoriaRecurso> listarCategorias() {
         return categoriaRecursoDao.findAll();
     }
 
-    public List<CategoriaRecurso> buscarCategorias(String texto) {
+    public List<CategoriaRecurso> buscarCategorias(String texto, String sesionId) throws Exception {
+        administradorDeSesion(sesionId);
         String textoLimpio = texto == null ? "" : texto.trim();
         if (textoLimpio.isBlank()) {
             return categoriaRecursoDao.findAll();
@@ -74,7 +76,12 @@ public class Service {
         return categoriaRecursoDao.findByDescripcion(textoLimpio);
     }
 
-    public void guardarCategoria(CategoriaRecurso categoria) {
+    public void guardarCategoria(CategoriaRecurso categoria, String sesionId) throws Exception {
+        administradorDeSesion(sesionId);
+        Optional<String> errorLargo = ValidadorLargo.validarCategoria(categoria);
+        if (errorLargo.isPresent()) {
+            throw new Exception(errorLargo.get());
+        }
         if (categoria.getId() == null) {
             categoria.setId(generarIdCategoria());
             categoriaRecursoDao.create(categoria);
@@ -83,7 +90,8 @@ public class Service {
         }
     }
 
-    public void borrarCategoria(String categoriaId) throws Exception {
+    public void borrarCategoria(String categoriaId, String sesionId) throws Exception {
+        administradorDeSesion(sesionId);
         if (!recursoDao.findByCategoria(categoriaId).isEmpty()) {
             throw new Exception("No se puede borrar: hay recursos asociados a esta categoría");
         }
@@ -102,11 +110,13 @@ public class Service {
         return String.format("CAT-%03d", maximo + 1);
     }
 
-    public List<Recurso> listarRecursos() {
+    public List<Recurso> listarRecursos(String sesionId) throws Exception {
+        administradorDeSesion(sesionId);
         return recursoDao.findAll();
     }
 
-    public List<Recurso> buscarRecursos(String texto) {
+    public List<Recurso> buscarRecursos(String texto, String sesionId) throws Exception {
+        administradorDeSesion(sesionId);
         String textoLimpio = texto == null ? "" : texto.trim();
         if (textoLimpio.isBlank()) {
             return recursoDao.findAll();
@@ -118,13 +128,15 @@ public class Service {
         return recursoDao.findByTexto(textoLimpio);
     }
 
-    public void borrarRecurso(String recursoId) throws Exception {
+    public void borrarRecurso(String recursoId, String sesionId) throws Exception {
+        administradorDeSesion(sesionId);
         if (DependenciaUtil.recursoTieneReservas(reservaDao.findAll(), recursoId)) {
             throw new Exception("No se puede borrar: hay reservas asociadas a este recurso");
         }
         recursoDao.delete(recursoId);
     }
 
+    // abierta a los funcionarios: Calendarización la usa para armar las columnas
     public List<Recurso> buscarRecursosPorCategoria(String categoriaId) {
         if (categoriaId == null) {
             return recursoDao.findAll();
@@ -132,7 +144,12 @@ public class Service {
         return recursoDao.findByCategoria(categoriaId);
     }
 
-    public void guardarRecurso(Recurso recurso, boolean esNuevo) throws Exception {
+    public void guardarRecurso(Recurso recurso, boolean esNuevo, String sesionId) throws Exception {
+        administradorDeSesion(sesionId);
+        Optional<String> errorLargo = ValidadorLargo.validarRecurso(recurso);
+        if (errorLargo.isPresent()) {
+            throw new Exception(errorLargo.get());
+        }
         boolean idYaExiste = recursoDao.read(recurso.getId()) != null;
         Optional<String> errorId = ValidadorId.validarIdParaCrear(esNuevo, idYaExiste, recurso.getId());
         if (errorId.isPresent()) {
@@ -145,11 +162,13 @@ public class Service {
         }
     }
 
-    public List<Funcionario> listarFuncionarios() {
+    public List<Funcionario> listarFuncionarios(String sesionId) throws Exception {
+        administradorDeSesion(sesionId);
         return funcionarioDao.findAll();
     }
 
-    public List<Funcionario> buscarFuncionarios(String texto) {
+    public List<Funcionario> buscarFuncionarios(String texto, String sesionId) throws Exception {
+        administradorDeSesion(sesionId);
         String textoLimpio = texto == null ? "" : texto.trim();
         if (textoLimpio.isBlank()) {
             return funcionarioDao.findAll();
@@ -161,7 +180,16 @@ public class Service {
         return funcionarioDao.findByNombre(textoLimpio);
     }
 
-    public void guardarFuncionario(Funcionario funcionario, boolean esNuevo) throws Exception {
+    public void guardarFuncionario(Funcionario funcionario, boolean esNuevo, String sesionId) throws Exception {
+        administradorDeSesion(sesionId);
+        Optional<String> errorLargo = ValidadorLargo.validarFuncionario(funcionario);
+        if (errorLargo.isPresent()) {
+            throw new Exception(errorLargo.get());
+        }
+        Optional<String> errorTelefono = ValidadorTelefono.validar(funcionario.getTelefono());
+        if (errorTelefono.isPresent()) {
+            throw new Exception(errorTelefono.get());
+        }
         boolean idYaExiste = funcionarioDao.read(funcionario.getId()) != null
                 || administradorDao.read(funcionario.getId()) != null;
         Optional<String> errorId = ValidadorId.validarIdParaCrear(esNuevo, idYaExiste, funcionario.getId());
@@ -191,6 +219,11 @@ public class Service {
         Usuario usuario = usuarioDeSesion(sesionId);
         if (!(usuario instanceof Funcionario)) {
             throw new Exception("Solo los funcionarios pueden hacer reservas");
+        }
+        // si la actividad no cabe en la base la reserva no se guarda, y no se puede notificar a los demas
+        Optional<String> errorLargo = ValidadorLargo.validarActividad(actividad);
+        if (errorLargo.isPresent()) {
+            throw new Exception(errorLargo.get());
         }
         if (!horaFin.isAfter(horaInicio)) {
             throw new Exception("La hora de fin debe ser posterior a la hora de inicio");
@@ -237,7 +270,8 @@ public class Service {
         reservaDao.updateEstado(reservaId, EstadoReserva.CANCELADA);
     }
 
-    public void borrarFuncionario(String funcionarioId) throws Exception {
+    public void borrarFuncionario(String funcionarioId, String sesionId) throws Exception {
+        administradorDeSesion(sesionId);
         if (!reservaDao.findByFuncionario(funcionarioId).isEmpty()) {
             throw new Exception("No se puede borrar: el funcionario tiene reservas asociadas");
         }
@@ -266,6 +300,15 @@ public class Service {
         return usuario;
     }
 
+    private Usuario administradorDeSesion(String sesionId) throws Exception {
+        Usuario usuario = usuarioDeSesion(sesionId);
+        Optional<String> error = ValidadorRol.validarAdministrador(usuario);
+        if (error.isPresent()) {
+            throw new Exception(error.get());
+        }
+        return usuario;
+    }
+
     public boolean sesionValida(String sesionId) {
         return sesionId != null && sesiones.containsKey(sesionId);
     }
@@ -276,6 +319,10 @@ public class Service {
     }
 
     public void cambiarClave(String id, String claveActual, String claveNueva) throws Exception {
+        Optional<String> errorLargo = ValidadorLargo.validarClave(claveNueva);
+        if (errorLargo.isPresent()) {
+            throw new Exception(errorLargo.get());
+        }
         Usuario usuario = autenticacionService.autenticar(id, claveActual);
         if (usuario == null) {
             throw new Exception("Clave actual incorrecta");

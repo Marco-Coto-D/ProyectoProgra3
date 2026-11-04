@@ -96,87 +96,109 @@ class ServiceIT {
     }
 
     @Test
-    void buscarCategoriasVacioDevuelveTodas() {
-        List<CategoriaRecurso> resultado = service.buscarCategorias("  ");
+    void cambiarClaveMuyLargaLanzaErrorYNoCambiaNada() {
+        Exception e = assertThrows(Exception.class, () -> service.cambiarClave("TEST-F001", "clave123", "x".repeat(101)));
+        assertEquals("La clave no puede tener más de 100 caracteres", e.getMessage());
+        assertEquals("clave123", (new FuncionarioDao()).read("TEST-F001").getClave());
+    }
+
+    @Test
+    void buscarCategoriasVacioDevuelveTodas() throws Exception {
+        List<CategoriaRecurso> resultado = service.buscarCategorias("  ", sesionAdmin);
         assertTrue(resultado.stream().anyMatch(c -> c.getId().equals("TEST-CAT1")));
         assertEquals(service.listarCategorias().size(), resultado.size());
     }
 
     @Test
-    void buscarCategoriasPorIdDevuelveSoloEsa() {
-        List<CategoriaRecurso> resultado = service.buscarCategorias("TEST-CAT1");
+    void buscarCategoriasPorIdDevuelveSoloEsa() throws Exception {
+        List<CategoriaRecurso> resultado = service.buscarCategorias("TEST-CAT1", sesionAdmin);
         assertEquals(1, resultado.size());
         assertEquals("TEST-Proyector portátil", ((CategoriaRecurso)resultado.get(0)).getDescripcion());
     }
 
     @Test
-    void buscarCategoriasPorDescripcionParcialSinMayusculas() {
-        List<CategoriaRecurso> resultado = service.buscarCategorias("proyector PORT");
+    void buscarCategoriasPorDescripcionParcialSinMayusculas() throws Exception {
+        List<CategoriaRecurso> resultado = service.buscarCategorias("proyector PORT", sesionAdmin);
         assertTrue(resultado.stream().anyMatch(c -> c.getId().equals("TEST-CAT1")));
     }
 
     @Test
-    void guardarCategoriaNuevaGeneraIdConsecutivo() {
+    void guardarCategoriaNuevaGeneraIdConsecutivo() throws Exception {
         CategoriaRecurso primera = new CategoriaRecurso(null, "TEST-Nueva uno");
         CategoriaRecurso segunda = new CategoriaRecurso(null, "TEST-Nueva dos");
-        service.guardarCategoria(primera);
-        service.guardarCategoria(segunda);
+        service.guardarCategoria(primera, sesionAdmin);
+        service.guardarCategoria(segunda, sesionAdmin);
         assertTrue(primera.getId().matches("CAT-\\d{3}"));
         int numeroPrimera = Integer.parseInt(primera.getId().substring(4));
         assertEquals(String.format("CAT-%03d", numeroPrimera + 1), segunda.getId());
-        assertEquals("TEST-Nueva uno", (service.buscarCategorias(primera.getId()).get(0)).getDescripcion());
+        assertEquals("TEST-Nueva uno", (service.buscarCategorias(primera.getId(), sesionAdmin).get(0)).getDescripcion());
     }
 
     @Test
-    void guardarCategoriaExistenteActualiza() {
-        service.guardarCategoria(new CategoriaRecurso("TEST-CAT1", "TEST-Proyector de techo"));
-        assertEquals("TEST-Proyector de techo", (service.buscarCategorias("TEST-CAT1").get(0)).getDescripcion());
+    void guardarCategoriaExistenteActualiza() throws Exception {
+        service.guardarCategoria(new CategoriaRecurso("TEST-CAT1", "TEST-Proyector de techo"), sesionAdmin);
+        assertEquals("TEST-Proyector de techo", (service.buscarCategorias("TEST-CAT1", sesionAdmin).get(0)).getDescripcion());
     }
 
     @Test
-    void borrarCategoriaConRecursosLanzaErrorYNoBorra() {
-        Exception e = assertThrows(Exception.class, () -> service.borrarCategoria("TEST-CAT1"));
+    void guardarCategoriaNuevaConDescripcionMuyLargaLanzaErrorYNoGuarda() {
+        int antes = service.listarCategorias().size();
+        Exception e = assertThrows(Exception.class, () -> service.guardarCategoria(new CategoriaRecurso(null, "TEST-" + "x".repeat(146)), sesionAdmin));
+        assertEquals("La descripción no puede tener más de 150 caracteres", e.getMessage());
+        assertEquals(antes, service.listarCategorias().size());
+    }
+
+    @Test
+    void guardarCategoriaExistenteConDescripcionMuyLargaLanzaErrorYNoCambia() throws Exception {
+        Exception e = assertThrows(Exception.class, () -> service.guardarCategoria(new CategoriaRecurso("TEST-CAT1", "TEST-" + "x".repeat(146)), sesionAdmin));
+        assertEquals("La descripción no puede tener más de 150 caracteres", e.getMessage());
+        assertEquals("TEST-Proyector portátil", (service.buscarCategorias("TEST-CAT1", sesionAdmin).get(0)).getDescripcion());
+    }
+
+    @Test
+    void borrarCategoriaConRecursosLanzaErrorYNoBorra() throws Exception {
+        Exception e = assertThrows(Exception.class, () -> service.borrarCategoria("TEST-CAT1", sesionAdmin));
         assertEquals("No se puede borrar: hay recursos asociados a esta categoría", e.getMessage());
-        assertEquals(1, service.buscarCategorias("TEST-CAT1").size());
+        assertEquals(1, service.buscarCategorias("TEST-CAT1", sesionAdmin).size());
     }
 
     @Test
     void borrarCategoriaSinRecursosLaBorra() throws Exception {
         ejecutar("insert into categoria_recurso (id, descripcion) values (?, ?)", "TEST-CAT3", "TEST-Sin recursos");
-        service.borrarCategoria("TEST-CAT3");
+        service.borrarCategoria("TEST-CAT3", sesionAdmin);
         assertTrue(service.listarCategorias().stream().noneMatch(c -> c.getId().equals("TEST-CAT3")));
     }
 
     @Test
-    void listarRecursosTraeCategoriaCompleta() {
-        Recurso r1 = service.listarRecursos().stream().filter(r -> r.getId().equals("TEST-R1")).findFirst().orElseThrow();
+    void listarRecursosTraeCategoriaCompleta() throws Exception {
+        Recurso r1 = service.listarRecursos(sesionAdmin).stream().filter(r -> r.getId().equals("TEST-R1")).findFirst().orElseThrow();
         assertEquals("TEST-Epson aula 12", r1.getDescripcion());
         assertEquals("TEST-CAT1", r1.getCategoria().getId());
         assertEquals("TEST-Proyector portátil", r1.getCategoria().getDescripcion());
     }
 
     @Test
-    void buscarRecursosVacioDevuelveTodos() {
-        assertEquals(service.listarRecursos().size(), service.buscarRecursos("").size());
+    void buscarRecursosVacioDevuelveTodos() throws Exception {
+        assertEquals(service.listarRecursos(sesionAdmin).size(), service.buscarRecursos("", sesionAdmin).size());
     }
 
     @Test
-    void buscarRecursosPorIdDevuelveSoloEse() {
-        List<Recurso> resultado = service.buscarRecursos("TEST-R2");
+    void buscarRecursosPorIdDevuelveSoloEse() throws Exception {
+        List<Recurso> resultado = service.buscarRecursos("TEST-R2", sesionAdmin);
         assertEquals(1, resultado.size());
         assertEquals("TEST-Lab de química", ((Recurso)resultado.get(0)).getDescripcion());
     }
 
     @Test
-    void buscarRecursosPorDescripcionDelRecurso() {
-        List<Recurso> resultado = service.buscarRecursos("epson");
+    void buscarRecursosPorDescripcionDelRecurso() throws Exception {
+        List<Recurso> resultado = service.buscarRecursos("epson", sesionAdmin);
         assertTrue(resultado.stream().anyMatch(r -> r.getId().equals("TEST-R1")));
         assertFalse(resultado.stream().anyMatch(r -> r.getId().equals("TEST-R2")));
     }
 
     @Test
-    void buscarRecursosPorDescripcionDeLaCategoria() {
-        List<Recurso> resultado = service.buscarRecursos("laboratorio");
+    void buscarRecursosPorDescripcionDeLaCategoria() throws Exception {
+        List<Recurso> resultado = service.buscarRecursos("laboratorio", sesionAdmin);
         assertTrue(resultado.stream().anyMatch(r -> r.getId().equals("TEST-R2")));
         assertFalse(resultado.stream().anyMatch(r -> r.getId().equals("TEST-R1")));
     }
@@ -189,42 +211,59 @@ class ServiceIT {
     }
 
     @Test
-    void buscarRecursosPorCategoriaNullDevuelveTodos() {
-        assertEquals(service.listarRecursos().size(), service.buscarRecursosPorCategoria(null).size());
+    void buscarRecursosPorCategoriaNullDevuelveTodos() throws Exception {
+        assertEquals(service.listarRecursos(sesionAdmin).size(), service.buscarRecursosPorCategoria(null).size());
     }
 
     @Test
     void guardarRecursoNuevoLoCrea() throws Exception {
-        CategoriaRecurso cat2 = service.buscarCategorias("TEST-CAT2").get(0);
-        service.guardarRecurso(new Recurso("TEST-R3", "TEST-Microscopio", cat2), true);
-        List<Recurso> resultado = service.buscarRecursos("TEST-R3");
+        CategoriaRecurso cat2 = service.buscarCategorias("TEST-CAT2", sesionAdmin).get(0);
+        service.guardarRecurso(new Recurso("TEST-R3", "TEST-Microscopio", cat2), true, sesionAdmin);
+        List<Recurso> resultado = service.buscarRecursos("TEST-R3", sesionAdmin);
         assertEquals(1, resultado.size());
         assertEquals("TEST-Microscopio", ((Recurso)resultado.get(0)).getDescripcion());
         assertEquals("TEST-CAT2", ((Recurso)resultado.get(0)).getCategoria().getId());
     }
 
     @Test
-    void guardarRecursoNuevoConIdExistenteLanzaErrorYNoPisa() {
-        CategoriaRecurso cat2 = service.buscarCategorias("TEST-CAT2").get(0);
-        Exception e = assertThrows(Exception.class, () -> service.guardarRecurso(new Recurso("TEST-R1", "TEST-Otro", cat2), true));
+    void guardarRecursoNuevoConIdExistenteLanzaErrorYNoPisa() throws Exception {
+        CategoriaRecurso cat2 = service.buscarCategorias("TEST-CAT2", sesionAdmin).get(0);
+        Exception e = assertThrows(Exception.class, () -> service.guardarRecurso(new Recurso("TEST-R1", "TEST-Otro", cat2), true, sesionAdmin));
         assertEquals("Ya existe un registro con el id TEST-R1", e.getMessage());
-        Recurso r1 = service.buscarRecursos("TEST-R1").get(0);
+        Recurso r1 = service.buscarRecursos("TEST-R1", sesionAdmin).get(0);
         assertEquals("TEST-Epson aula 12", r1.getDescripcion());
         assertEquals("TEST-CAT1", r1.getCategoria().getId());
     }
 
     @Test
+    void guardarRecursoConIdMuyLargoLanzaErrorYNoGuarda() throws Exception {
+        CategoriaRecurso cat2 = service.buscarCategorias("TEST-CAT2", sesionAdmin).get(0);
+        int antes = service.listarRecursos(sesionAdmin).size();
+        Exception e = assertThrows(Exception.class, () -> service.guardarRecurso(new Recurso("TEST-" + "x".repeat(46), "TEST-Microscopio", cat2), true, sesionAdmin));
+        assertEquals("El id no puede tener más de 50 caracteres", e.getMessage());
+        assertEquals(antes, service.listarRecursos(sesionAdmin).size());
+    }
+
+    @Test
+    void guardarRecursoExistenteConDescripcionMuyLargaLanzaErrorYNoCambia() throws Exception {
+        CategoriaRecurso cat1 = service.buscarCategorias("TEST-CAT1", sesionAdmin).get(0);
+        Exception e = assertThrows(Exception.class, () -> service.guardarRecurso(new Recurso("TEST-R1", "TEST-" + "x".repeat(146), cat1), false, sesionAdmin));
+        assertEquals("La descripción no puede tener más de 150 caracteres", e.getMessage());
+        assertEquals("TEST-Epson aula 12", service.buscarRecursos("TEST-R1", sesionAdmin).get(0).getDescripcion());
+    }
+
+    @Test
     void guardarRecursoExistenteActualizaDescripcionYCategoria() throws Exception {
-        CategoriaRecurso cat2 = service.buscarCategorias("TEST-CAT2").get(0);
-        service.guardarRecurso(new Recurso("TEST-R1", "TEST-Epson movido", cat2), false);
-        Recurso r1 = service.buscarRecursos("TEST-R1").get(0);
+        CategoriaRecurso cat2 = service.buscarCategorias("TEST-CAT2", sesionAdmin).get(0);
+        service.guardarRecurso(new Recurso("TEST-R1", "TEST-Epson movido", cat2), false, sesionAdmin);
+        Recurso r1 = service.buscarRecursos("TEST-R1", sesionAdmin).get(0);
         assertEquals("TEST-Epson movido", r1.getDescripcion());
         assertEquals("TEST-CAT2", r1.getCategoria().getId());
     }
 
     @Test
-    void listarFuncionariosTraeDatosCompletos() {
-        Funcionario f1 = service.listarFuncionarios().stream().filter(f -> f.getId().equals("TEST-F001")).findFirst().orElseThrow();
+    void listarFuncionariosTraeDatosCompletos() throws Exception {
+        Funcionario f1 = service.listarFuncionarios(sesionAdmin).stream().filter(f -> f.getId().equals("TEST-F001")).findFirst().orElseThrow();
         assertEquals("Ana López", f1.getNombre());
         assertEquals("8888-0000", f1.getTelefono());
         assertEquals("clave123", f1.getClave());
@@ -232,54 +271,84 @@ class ServiceIT {
     }
 
     @Test
-    void buscarFuncionariosVacioDevuelveTodos() {
-        assertEquals(service.listarFuncionarios().size(), service.buscarFuncionarios(" ").size());
+    void buscarFuncionariosVacioDevuelveTodos() throws Exception {
+        assertEquals(service.listarFuncionarios(sesionAdmin).size(), service.buscarFuncionarios(" ", sesionAdmin).size());
     }
 
     @Test
-    void buscarFuncionariosPorIdDevuelveSoloEse() {
-        List<Funcionario> resultado = service.buscarFuncionarios("TEST-F002");
+    void buscarFuncionariosPorIdDevuelveSoloEse() throws Exception {
+        List<Funcionario> resultado = service.buscarFuncionarios("TEST-F002", sesionAdmin);
         assertEquals(1, resultado.size());
         assertEquals("Bruno Pérez", ((Funcionario)resultado.get(0)).getNombre());
     }
 
     @Test
-    void buscarFuncionariosPorNombreParcialSinMayusculas() {
-        List<Funcionario> resultado = service.buscarFuncionarios("ana lóp");
+    void buscarFuncionariosPorNombreParcialSinMayusculas() throws Exception {
+        List<Funcionario> resultado = service.buscarFuncionarios("ana lóp", sesionAdmin);
         assertTrue(resultado.stream().anyMatch(f -> f.getId().equals("TEST-F001")));
         assertFalse(resultado.stream().anyMatch(f -> f.getId().equals("TEST-F002")));
     }
 
     @Test
     void guardarFuncionarioNuevoUsaIdComoClave() throws Exception {
-        service.guardarFuncionario(new Funcionario("TEST-F003", "loQueMandeElCliente", "Carla Ruiz", "8888-2222"), true);
-        Funcionario f3 = service.buscarFuncionarios("TEST-F003").get(0);
+        service.guardarFuncionario(new Funcionario("TEST-F003", "loQueMandeElCliente", "Carla Ruiz", "8888-2222"), true, sesionAdmin);
+        Funcionario f3 = service.buscarFuncionarios("TEST-F003", sesionAdmin).get(0);
         assertEquals("Carla Ruiz", f3.getNombre());
         assertEquals("TEST-F003", f3.getClave());
         assertNotNull(service.autenticar("TEST-F003", "TEST-F003"));
     }
 
     @Test
-    void guardarFuncionarioNuevoConIdDeOtroFuncionarioLanzaError() {
-        Exception e = assertThrows(Exception.class, () -> service.guardarFuncionario(new Funcionario("TEST-F001", "x", "Otro", "0000-0000"), true));
+    void guardarFuncionarioNuevoConIdDeOtroFuncionarioLanzaError() throws Exception {
+        Exception e = assertThrows(Exception.class, () -> service.guardarFuncionario(new Funcionario("TEST-F001", "x", "Otro", "0000-0000"), true, sesionAdmin));
         assertEquals("Ya existe un registro con el id TEST-F001", e.getMessage());
-        assertEquals("Ana López", (service.buscarFuncionarios("TEST-F001").get(0)).getNombre());
+        assertEquals("Ana López", (service.buscarFuncionarios("TEST-F001", sesionAdmin).get(0)).getNombre());
     }
 
     @Test
-    void guardarFuncionarioNuevoConIdDeAdministradorLanzaError() {
-        Exception e = assertThrows(Exception.class, () -> service.guardarFuncionario(new Funcionario("TEST-ADMIN", "x", "Otro", "0000-0000"), true));
+    void guardarFuncionarioNuevoConIdDeAdministradorLanzaError() throws Exception {
+        Exception e = assertThrows(Exception.class, () -> service.guardarFuncionario(new Funcionario("TEST-ADMIN", "x", "Otro", "0000-0000"), true, sesionAdmin));
         assertEquals("Ya existe un registro con el id TEST-ADMIN", e.getMessage());
-        assertTrue(service.buscarFuncionarios("TEST-ADMIN").isEmpty());
+        assertTrue(service.buscarFuncionarios("TEST-ADMIN", sesionAdmin).isEmpty());
+    }
+
+    @Test
+    void guardarFuncionarioNuevoConTelefonoMuyLargoLanzaErrorYNoGuarda() throws Exception {
+        Exception e = assertThrows(Exception.class, () -> service.guardarFuncionario(new Funcionario("TEST-F003", null, "Carla Mora", "1".repeat(31)), true, sesionAdmin));
+        assertEquals("El teléfono no puede tener más de 30 caracteres", e.getMessage());
+        assertTrue(service.buscarFuncionarios("TEST-F003", sesionAdmin).isEmpty());
+    }
+
+    @Test
+    void guardarFuncionarioNuevoConLetrasEnElTelefonoLanzaErrorYNoGuarda() throws Exception {
+        Exception e = assertThrows(Exception.class, () -> service.guardarFuncionario(new Funcionario("TEST-F003", null, "Carla Mora", "abc"), true, sesionAdmin));
+        assertEquals("El teléfono solo puede tener números, espacios o guiones", e.getMessage());
+        assertTrue(service.buscarFuncionarios("TEST-F003", sesionAdmin).isEmpty());
+    }
+
+    @Test
+    void guardarFuncionarioExistenteConLetrasEnElTelefonoLanzaErrorYNoCambia() throws Exception {
+        Funcionario f1 = service.buscarFuncionarios("TEST-F001", sesionAdmin).get(0);
+        Exception e = assertThrows(Exception.class, () -> service.guardarFuncionario(new Funcionario("TEST-F001", f1.getClave(), f1.getNombre(), "8888-OOOO"), false, sesionAdmin));
+        assertEquals("El teléfono solo puede tener números, espacios o guiones", e.getMessage());
+        assertEquals("8888-0000", service.buscarFuncionarios("TEST-F001", sesionAdmin).get(0).getTelefono());
+    }
+
+    @Test
+    void guardarFuncionarioExistenteConNombreMuyLargoLanzaErrorYNoCambia() throws Exception {
+        Funcionario f1 = service.buscarFuncionarios("TEST-F001", sesionAdmin).get(0);
+        Exception e = assertThrows(Exception.class, () -> service.guardarFuncionario(new Funcionario("TEST-F001", f1.getClave(), "x".repeat(151), f1.getTelefono()), false, sesionAdmin));
+        assertEquals("El nombre no puede tener más de 150 caracteres", e.getMessage());
+        assertEquals("Ana López", service.buscarFuncionarios("TEST-F001", sesionAdmin).get(0).getNombre());
     }
 
     @Test
     void guardarFuncionarioExistenteActualizaYConservaClave() throws Exception {
-        Funcionario f1 = service.buscarFuncionarios("TEST-F001").get(0);
+        Funcionario f1 = service.buscarFuncionarios("TEST-F001", sesionAdmin).get(0);
         f1.setNombre("Ana López Mora");
         f1.setTelefono("7777-0000");
-        service.guardarFuncionario(f1, false);
-        Funcionario actualizado = service.buscarFuncionarios("TEST-F001").get(0);
+        service.guardarFuncionario(f1, false, sesionAdmin);
+        Funcionario actualizado = service.buscarFuncionarios("TEST-F001", sesionAdmin).get(0);
         assertEquals("Ana López Mora", actualizado.getNombre());
         assertEquals("7777-0000", actualizado.getTelefono());
         assertEquals("clave123", actualizado.getClave());
@@ -387,49 +456,134 @@ class ServiceIT {
     }
 
     @Test
-    void borrarRecursoConReservasLanzaErrorYNoBorra() {
-        Exception e = assertThrows(Exception.class, () -> service.borrarRecurso("TEST-R2"));
+    void borrarRecursoConReservasLanzaErrorYNoBorra() throws Exception {
+        Exception e = assertThrows(Exception.class, () -> service.borrarRecurso("TEST-R2", sesionAdmin));
         assertEquals("No se puede borrar: hay reservas asociadas a este recurso", e.getMessage());
-        assertEquals(1, service.buscarRecursos("TEST-R2").size());
+        assertEquals(1, service.buscarRecursos("TEST-R2", sesionAdmin).size());
     }
 
     @Test
     void borrarRecursoConSoloReservasCanceladasTambienLanzaError() throws Exception {
         ejecutar("insert into recurso (id, descripcion, categoria) values (?, ?, ?)", "TEST-R4", "TEST-Solo cancelada", "TEST-CAT1");
         ejecutar("insert into reserva_recurso (reserva, recurso) values (?, ?)", "TEST-RES2", "TEST-R4");
-        Exception e = assertThrows(Exception.class, () -> service.borrarRecurso("TEST-R4"));
+        Exception e = assertThrows(Exception.class, () -> service.borrarRecurso("TEST-R4", sesionAdmin));
         assertEquals("No se puede borrar: hay reservas asociadas a este recurso", e.getMessage());
     }
 
     @Test
     void borrarRecursoSinReservasLoBorra() throws Exception {
         ejecutar("insert into recurso (id, descripcion, categoria) values (?, ?, ?)", "TEST-R5", "TEST-Sin reservas", "TEST-CAT1");
-        service.borrarRecurso("TEST-R5");
-        assertTrue(service.listarRecursos().stream().noneMatch(r -> r.getId().equals("TEST-R5")));
+        service.borrarRecurso("TEST-R5", sesionAdmin);
+        assertTrue(service.listarRecursos(sesionAdmin).stream().noneMatch(r -> r.getId().equals("TEST-R5")));
     }
 
     @Test
-    void borrarFuncionarioConReservasLanzaErrorYNoBorra() {
-        Exception e = assertThrows(Exception.class, () -> service.borrarFuncionario("TEST-F001"));
+    void borrarFuncionarioConReservasLanzaErrorYNoBorra() throws Exception {
+        Exception e = assertThrows(Exception.class, () -> service.borrarFuncionario("TEST-F001", sesionAdmin));
         assertEquals("No se puede borrar: el funcionario tiene reservas asociadas", e.getMessage());
-        assertEquals(1, service.buscarFuncionarios("TEST-F001").size());
+        assertEquals(1, service.buscarFuncionarios("TEST-F001", sesionAdmin).size());
     }
 
     @Test
     void borrarFuncionarioConSoloReservasCanceladasTambienLanzaError() {
-        Exception e = assertThrows(Exception.class, () -> service.borrarFuncionario("TEST-F002"));
+        Exception e = assertThrows(Exception.class, () -> service.borrarFuncionario("TEST-F002", sesionAdmin));
         assertEquals("No se puede borrar: el funcionario tiene reservas asociadas", e.getMessage());
     }
 
     @Test
     void borrarFuncionarioSinReservasLoBorra() throws Exception {
         ejecutar("insert into funcionario (id, clave, nombre, telefono) values (?, ?, ?, ?)", "TEST-F004", "x", "Diego Mora", "8888-4444");
-        service.borrarFuncionario("TEST-F004");
-        assertTrue(service.buscarFuncionarios("TEST-F004").isEmpty());
+        service.borrarFuncionario("TEST-F004", sesionAdmin);
+        assertTrue(service.buscarFuncionarios("TEST-F004", sesionAdmin).isEmpty());
     }
 
-    private List<CategoriaRecurso> categoria(String id) {
-        return List.of(service.buscarCategorias(id).get(0));
+    // mantenimiento de funcionarios, categorías y recursos: solo el administrador, aunque se hable directo por el protocolo
+    private static final String SOLO_ADMIN = "Solo el administrador puede hacer esta operación";
+
+    @Test
+    void funcionarioNoPuedeListarNiBuscarFuncionarios() {
+        Exception listar = assertThrows(Exception.class, () -> service.listarFuncionarios(sesionF1));
+        Exception buscar = assertThrows(Exception.class, () -> service.buscarFuncionarios("TEST-F002", sesionF1));
+        assertEquals(SOLO_ADMIN, listar.getMessage());
+        assertEquals(SOLO_ADMIN, buscar.getMessage());
+    }
+
+    @Test
+    void funcionarioNoPuedeCrearFuncionarioYNoSeGuarda() throws Exception {
+        Exception e = assertThrows(Exception.class, () -> service.guardarFuncionario(new Funcionario("TEST-F003", null, "Carla Ruiz", "8888-2222"), true, sesionF1));
+        assertEquals(SOLO_ADMIN, e.getMessage());
+        assertTrue(service.buscarFuncionarios("TEST-F003", sesionAdmin).isEmpty());
+    }
+
+    @Test
+    void funcionarioNoPuedeEditarOtroFuncionarioYNoCambia() throws Exception {
+        Exception e = assertThrows(Exception.class, () -> service.guardarFuncionario(new Funcionario("TEST-F002", "robada", "Otro nombre", "0000-0000"), false, sesionF1));
+        assertEquals(SOLO_ADMIN, e.getMessage());
+        Funcionario f2 = service.buscarFuncionarios("TEST-F002", sesionAdmin).get(0);
+        assertEquals("Bruno Pérez", f2.getNombre());
+        assertEquals("clave456", f2.getClave());
+    }
+
+    @Test
+    void funcionarioNoPuedeBorrarFuncionarioYNoSeBorra() throws Exception {
+        ejecutar("insert into funcionario (id, clave, nombre, telefono) values (?, ?, ?, ?)", "TEST-F004", "x", "Diego Mora", "8888-4444");
+        Exception e = assertThrows(Exception.class, () -> service.borrarFuncionario("TEST-F004", sesionF1));
+        assertEquals(SOLO_ADMIN, e.getMessage());
+        assertEquals(1, service.buscarFuncionarios("TEST-F004", sesionAdmin).size());
+    }
+
+    @Test
+    void funcionarioNoPuedeCrearEditarNiBorrarCategorias() throws Exception {
+        ejecutar("insert into categoria_recurso (id, descripcion) values (?, ?)", "TEST-CAT3", "TEST-Sin recursos");
+        int antes = service.listarCategorias().size();
+        Exception crear = assertThrows(Exception.class, () -> service.guardarCategoria(new CategoriaRecurso(null, "TEST-Nueva"), sesionF1));
+        Exception editar = assertThrows(Exception.class, () -> service.guardarCategoria(new CategoriaRecurso("TEST-CAT1", "TEST-Cambiada"), sesionF1));
+        Exception borrar = assertThrows(Exception.class, () -> service.borrarCategoria("TEST-CAT3", sesionF1));
+        Exception buscar = assertThrows(Exception.class, () -> service.buscarCategorias("TEST", sesionF1));
+        assertEquals(SOLO_ADMIN, crear.getMessage());
+        assertEquals(SOLO_ADMIN, editar.getMessage());
+        assertEquals(SOLO_ADMIN, borrar.getMessage());
+        assertEquals(SOLO_ADMIN, buscar.getMessage());
+        assertEquals(antes, service.listarCategorias().size());
+        assertEquals("TEST-Proyector portátil", service.buscarCategorias("TEST-CAT1", sesionAdmin).get(0).getDescripcion());
+    }
+
+    @Test
+    void funcionarioNoPuedeCrearEditarNiBorrarRecursos() throws Exception {
+        ejecutar("insert into recurso (id, descripcion, categoria) values (?, ?, ?)", "TEST-R5", "TEST-Sin reservas", "TEST-CAT1");
+        CategoriaRecurso cat2 = service.buscarCategorias("TEST-CAT2", sesionAdmin).get(0);
+        Exception crear = assertThrows(Exception.class, () -> service.guardarRecurso(new Recurso("TEST-R3", "TEST-Microscopio", cat2), true, sesionF1));
+        Exception editar = assertThrows(Exception.class, () -> service.guardarRecurso(new Recurso("TEST-R1", "TEST-Cambiado", cat2), false, sesionF1));
+        Exception borrar = assertThrows(Exception.class, () -> service.borrarRecurso("TEST-R5", sesionF1));
+        Exception listar = assertThrows(Exception.class, () -> service.listarRecursos(sesionF1));
+        Exception buscar = assertThrows(Exception.class, () -> service.buscarRecursos("TEST", sesionF1));
+        assertEquals(SOLO_ADMIN, crear.getMessage());
+        assertEquals(SOLO_ADMIN, editar.getMessage());
+        assertEquals(SOLO_ADMIN, borrar.getMessage());
+        assertEquals(SOLO_ADMIN, listar.getMessage());
+        assertEquals(SOLO_ADMIN, buscar.getMessage());
+        assertTrue(service.buscarRecursos("TEST-R3", sesionAdmin).isEmpty());
+        assertEquals("TEST-Epson aula 12", service.buscarRecursos("TEST-R1", sesionAdmin).get(0).getDescripcion());
+        assertEquals(1, service.buscarRecursos("TEST-R5", sesionAdmin).size());
+    }
+
+    @Test
+    void operacionDeAdministradorSinSesionPideIniciarSesion() {
+        Exception e = assertThrows(Exception.class, () -> service.listarFuncionarios("sesion-inventada"));
+        assertEquals("Tenés que iniciar sesión", e.getMessage());
+    }
+
+    @Test
+    void funcionarioSigueTeniendoLasConsultasDeSusPantallas() throws Exception {
+        // Reservas, Calendarización, Programación y Estadísticas
+        assertTrue(service.listarCategorias().stream().anyMatch(c -> c.getId().equals("TEST-CAT1")));
+        assertEquals(List.of("TEST-R1"), service.buscarRecursosPorCategoria("TEST-CAT1").stream().map(Recurso::getId).toList());
+        assertTrue(service.listarReservasEntre(LocalDate.of(2030, 1, 7), LocalDate.of(2030, 1, 9)).size() >= 2);
+        assertEquals(2, service.listarMisReservas(sesionF1).size());
+    }
+
+    private List<CategoriaRecurso> categoria(String id) throws Exception {
+        return List.of(service.buscarCategorias(id, sesionAdmin).get(0));
     }
 
     @Test
@@ -448,6 +602,14 @@ class ServiceIT {
         int antes = service.listarMisReservas(sesionF2).size();
         Exception e = assertThrows(Exception.class, () -> service.crearReserva("TEST-Choque", LocalDate.of(2030, 1, 7), LocalTime.of(9, 0), LocalTime.of(9, 30), sesionF2, categoria("TEST-CAT1")));
         assertEquals("Sin disponibilidad para: TEST-Proyector portátil", e.getMessage());
+        assertEquals(antes, service.listarMisReservas(sesionF2).size());
+    }
+
+    @Test
+    void crearReservaConActividadMuyLargaLanzaErrorYNoGuarda() throws Exception {
+        int antes = service.listarMisReservas(sesionF2).size();
+        Exception e = assertThrows(Exception.class, () -> service.crearReserva("TEST-" + "x".repeat(196), LocalDate.of(2030, 3, 4), LocalTime.of(9, 0), LocalTime.of(10, 0), sesionF2, categoria("TEST-CAT2")));
+        assertEquals("La actividad no puede tener más de 200 caracteres", e.getMessage());
         assertEquals(antes, service.listarMisReservas(sesionF2).size());
     }
 

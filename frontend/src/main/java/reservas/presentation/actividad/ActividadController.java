@@ -3,6 +3,7 @@ package reservas.presentation.actividad;
 import reservas.logic.EstadoReserva;
 import reservas.logic.Reserva;
 import reservas.proxy.BackendProxy;
+import reservas.util.FechaConverter;
 import reservas.util.PdfUtil;
 
 import java.time.DayOfWeek;
@@ -17,9 +18,6 @@ public class ActividadController {
     private final ActividadModel model;
     private final BackendProxy proxy;
 
-    private LocalDate ultimoLunes;
-    private List<Reserva> ultimasReservas = new ArrayList<>();
-
     public ActividadController(ActividadView view, ActividadModel model, BackendProxy proxy) {
         this.view = view;
         this.model = model;
@@ -32,7 +30,7 @@ public class ActividadController {
     public void cargarSemana(LocalDate fecha) {
         if (fecha == null) {
             model.setError("");
-            view.limpiarGrid();
+            model.limpiarSemana();
             return;
         }
 
@@ -48,14 +46,18 @@ public class ActividadController {
             return;
         }
 
-        ultimoLunes = lunes;
-        ultimasReservas = reservasSemana;
         model.setError("");
-        view.dibujarGrid(lunes, reservasSemana);
+        model.setSemana(lunes, reservasSemana);
+    }
+
+    public void fechaInvalida() {
+        model.limpiarSemana();
+        model.setError(FechaConverter.MENSAJE_INVALIDA);
     }
 
     public void print() {
-        if (ultimoLunes == null) {
+        LocalDate lunes = model.getLunes();
+        if (lunes == null) {
             model.setError("Seleccioná una fecha antes de generar el PDF");
             return;
         }
@@ -63,7 +65,7 @@ public class ActividadController {
         List<String> encabezados = new ArrayList<>();
         encabezados.add("Hora");
         for (int d = 0; d < 7; d++) {
-            encabezados.add(diasNombre[d] + " " + ultimoLunes.plusDays(d));
+            encabezados.add(diasNombre[d] + " " + lunes.plusDays(d));
         }
         List<List<String>> filas = new ArrayList<>();
         for (int h = 6; h <= 22; h++) {
@@ -71,8 +73,7 @@ public class ActividadController {
             List<String> fila = new ArrayList<>();
             fila.add(hora.toString());
             for (int d = 0; d < 7; d++) {
-                LocalDate fecha = ultimoLunes.plusDays(d);
-                List<Reserva> enCelda = encontrarReservas(ultimasReservas, fecha, hora);
+                List<Reserva> enCelda = model.reservasEn(lunes.plusDays(d), hora);
                 fila.add(enCelda.stream()
                         .map(r -> r.getActividad() + " (" + r.getFuncionario().getNombre() + ")")
                         .collect(Collectors.joining(" | ")));
@@ -80,17 +81,11 @@ public class ActividadController {
             filas.add(fila);
         }
         try {
-            PdfUtil.generar("Programación semana " + ultimoLunes, encabezados, filas);
+            PdfUtil.generar("Programación semana " + lunes, encabezados, filas);
             model.setError("");
         } catch (Exception e) {
             model.setError("Error al generar PDF: " + e.getMessage());
         }
     }
 
-    private List<Reserva> encontrarReservas(List<Reserva> reservas, LocalDate fecha, LocalTime hora) {
-        return reservas.stream()
-                .filter(r -> r.getFecha().equals(fecha))
-                .filter(r -> !hora.isBefore(r.getHoraInicio()) && hora.isBefore(r.getHoraFin()))
-                .collect(Collectors.toList());
-    }
 }

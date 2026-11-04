@@ -1,5 +1,8 @@
 package reservas.presentation.recurso;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,6 +18,7 @@ import reservas.logic.Recurso;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import reservas.presentation.Confirmacion;
 
 public class RecursoView implements PropertyChangeListener {
 
@@ -37,6 +41,11 @@ public class RecursoView implements PropertyChangeListener {
     private final Parent root;
     private RecursoModel model;
     private Recurso seleccionado;
+    private RecursoController controller;
+    // mientras se rearma la lista del filtro, los cambios del combo no son del usuario
+    private boolean rearmandoFiltro;
+    // el filtro tiene "Todas" (null) como primera opción, para poder volver a ver todos los recursos
+    private final ObservableList<CategoriaRecurso> opcionesFiltro = FXCollections.observableArrayList();
 
     public RecursoView() {
         try {
@@ -65,12 +74,21 @@ public class RecursoView implements PropertyChangeListener {
         return root;
     }
 
+    public boolean confirmar(String mensaje) {
+        return Confirmacion.confirmar(root, "Borrar recurso", mensaje);
+    }
+
     public void setController(RecursoController controller) {
+        this.controller = controller;
         btnGuardar.setOnAction(e -> controller.guardar(
                 seleccionado, txtId.getText(), txtDescripcion.getText(), cmbCategoria.getValue()));
         btnBorrar.setOnAction(e -> controller.borrar(tablaRecursos.getSelectionModel().getSelectedItem()));
         btnLimpiar.setOnAction(e -> limpiarFormulario());
-        cmbFiltro.setOnAction(e -> controller.buscarPorCategoria(cmbFiltro.getValue()));
+        cmbFiltro.setOnAction(e -> {
+            if (!rearmandoFiltro) {
+                controller.buscarPorCategoria(cmbFiltro.getValue());
+            }
+        });
         btnBuscar.setOnAction(e -> controller.buscar(txtBusqueda.getText()));
         btnPdf.setOnAction(e -> controller.print());
 
@@ -95,9 +113,11 @@ public class RecursoView implements PropertyChangeListener {
         cmbCategoria.setButtonCell(celdaCategoria());
         cmbCategoria.setConverter(convertidorCategoria());
 
-        cmbFiltro.setItems(model.getCategorias());
-        cmbFiltro.setCellFactory(lv -> celdaCategoria());
-        cmbFiltro.setButtonCell(celdaCategoria());
+        cmbFiltro.setItems(opcionesFiltro);
+        model.getCategorias().addListener((ListChangeListener<CategoriaRecurso>) cambio -> rearmarFiltro());
+        rearmarFiltro();
+        cmbFiltro.setCellFactory(lv -> celdaFiltro());
+        cmbFiltro.setButtonCell(celdaFiltro());
         cmbFiltro.setConverter(convertidorCategoria());
 
         colId.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().getId()));
@@ -107,11 +127,41 @@ public class RecursoView implements PropertyChangeListener {
         tablaRecursos.setItems(model.getRecursos());
     }
 
+    // al volver a la pestaña se recargan las categorías: el filtro tiene que quedar en la misma
+    // categoría que había elegido el usuario (o en "Todas"), y la tabla seguir igual
+    private void rearmarFiltro() {
+        CategoriaRecurso elegida = cmbFiltro.getValue();
+        CategoriaRecurso misma = elegida == null ? null : model.getCategorias().stream()
+                .filter(c -> c.getId().equals(elegida.getId()))
+                .findFirst().orElse(null);
+        rearmandoFiltro = true;
+        try {
+            opcionesFiltro.setAll(model.getCategorias());
+            opcionesFiltro.add(0, null);
+            cmbFiltro.getSelectionModel().select(opcionesFiltro.indexOf(misma));
+        } finally {
+            rearmandoFiltro = false;
+        }
+        if (elegida != null && misma == null && controller != null) {
+            // la categoría del filtro ya no existe: el combo quedó en "Todas", la tabla también
+            controller.buscarPorCategoria(null);
+        }
+    }
+
     private ListCell<CategoriaRecurso> celdaCategoria() {
         return new ListCell<>() {
             @Override protected void updateItem(CategoriaRecurso c, boolean vacio) {
                 super.updateItem(c, vacio);
                 setText(vacio || c == null ? null : c.getDescripcion());
+            }
+        };
+    }
+
+    private ListCell<CategoriaRecurso> celdaFiltro() {
+        return new ListCell<>() {
+            @Override protected void updateItem(CategoriaRecurso c, boolean vacio) {
+                super.updateItem(c, vacio);
+                setText(c == null ? "Todas" : c.getDescripcion());
             }
         };
     }

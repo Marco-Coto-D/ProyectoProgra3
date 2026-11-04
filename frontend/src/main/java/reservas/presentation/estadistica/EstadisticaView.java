@@ -17,6 +17,15 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.Map;
+import reservas.util.FechaConverter;
+import javafx.scene.Node;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.image.PixelFormat;
+import javafx.scene.image.WritableImage;
+import javafx.scene.transform.Transform;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 
 public class EstadisticaView implements PropertyChangeListener {
 
@@ -51,6 +60,8 @@ public class EstadisticaView implements PropertyChangeListener {
         } catch (IOException e) {
             throw new RuntimeException("No se pudo cargar EstadisticaView.fxml", e);
         }
+
+        FechaConverter.aplicar(dpDesdeRecursos, dpHastaRecursos, dpDesdeActividades, dpHastaActividades);
     }
 
     public Parent getRoot() {
@@ -58,11 +69,21 @@ public class EstadisticaView implements PropertyChangeListener {
     }
 
     public void setController(EstadisticaController controller) {
-        btnCargarRecursos.setOnAction(e ->
-                controller.cargarRecursos(dpDesdeRecursos.getValue(), dpHastaRecursos.getValue()));
+        btnCargarRecursos.setOnAction(e -> {
+            if (FechaConverter.esInvalida(dpDesdeRecursos) || FechaConverter.esInvalida(dpHastaRecursos)) {
+                controller.fechaInvalidaRecursos();
+                return;
+            }
+            controller.cargarRecursos(dpDesdeRecursos.getValue(), dpHastaRecursos.getValue());
+        });
         btnPdfRecursos.setOnAction(e -> controller.printRecursos());
-        btnCargarActividades.setOnAction(e ->
-                controller.cargarActividades(dpDesdeActividades.getValue(), dpHastaActividades.getValue()));
+        btnCargarActividades.setOnAction(e -> {
+            if (FechaConverter.esInvalida(dpDesdeActividades) || FechaConverter.esInvalida(dpHastaActividades)) {
+                controller.fechaInvalidaActividades();
+                return;
+            }
+            controller.cargarActividades(dpDesdeActividades.getValue(), dpHastaActividades.getValue());
+        });
         btnPdfActividades.setOnAction(e -> controller.printActividades());
     }
 
@@ -77,7 +98,32 @@ public class EstadisticaView implements PropertyChangeListener {
         colCantidadActividad.setCellValueFactory(d -> new SimpleStringProperty(String.valueOf(d.getValue().getValue())));
     }
 
-    public void mostrarRecursos(Map<String, Long> conteo) {
+    /** el gráfico tal como se ve en pantalla, en PNG, para ponerlo en el PDF */
+    public byte[] graficoRecursos() throws IOException {
+        return png(chartRecursos);
+    }
+
+    public byte[] graficoActividades() throws IOException {
+        return png(chartActividades);
+    }
+
+    private byte[] png(Node nodo) throws IOException {
+        // al doble de tamaño para que no se vea borroso en el PDF
+        SnapshotParameters parametros = new SnapshotParameters();
+        parametros.setTransform(Transform.scale(2, 2));
+        WritableImage imagen = nodo.snapshot(parametros, null);
+        int ancho = (int) imagen.getWidth();
+        int alto = (int) imagen.getHeight();
+        int[] pixeles = new int[ancho * alto];
+        imagen.getPixelReader().getPixels(0, 0, ancho, alto, PixelFormat.getIntArgbInstance(), pixeles, 0, ancho);
+        BufferedImage copia = new BufferedImage(ancho, alto, BufferedImage.TYPE_INT_ARGB);
+        copia.setRGB(0, 0, ancho, alto, pixeles, 0, ancho);
+        ByteArrayOutputStream salida = new ByteArrayOutputStream();
+        ImageIO.write(copia, "png", salida);
+        return salida.toByteArray();
+    }
+
+    private void mostrarRecursos(Map<String, Long> conteo) {
         tablaRecursos.setItems(FXCollections.observableArrayList(conteo.entrySet()));
 
         XYChart.Series<String, Number> serie = new XYChart.Series<>();
@@ -87,7 +133,7 @@ public class EstadisticaView implements PropertyChangeListener {
         chartRecursos.getData().setAll(serie);
     }
 
-    public void mostrarActividades(Map<String, Long> conteo) {
+    private void mostrarActividades(Map<String, Long> conteo) {
         tablaActividades.setItems(FXCollections.observableArrayList(conteo.entrySet()));
 
         XYChart.Series<String, Number> serie = new XYChart.Series<>();
@@ -99,7 +145,11 @@ public class EstadisticaView implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (EstadisticaModel.ERROR_RECURSOS.equals(evt.getPropertyName())) {
+        if (EstadisticaModel.RECURSOS.equals(evt.getPropertyName())) {
+            mostrarRecursos(model.getConteoRecursos());
+        } else if (EstadisticaModel.ACTIVIDADES.equals(evt.getPropertyName())) {
+            mostrarActividades(model.getConteoActividades());
+        } else if (EstadisticaModel.ERROR_RECURSOS.equals(evt.getPropertyName())) {
             lblErrorRecursos.setText(model.getErrorRecursos());
         } else if (EstadisticaModel.ERROR_ACTIVIDADES.equals(evt.getPropertyName())) {
             lblErrorActividades.setText(model.getErrorActividades());

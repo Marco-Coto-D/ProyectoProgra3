@@ -19,6 +19,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import reservas.util.FechaConverter;
+import reservas.presentation.Confirmacion;
 
 public class ReservaView implements PropertyChangeListener {
 
@@ -53,6 +55,8 @@ public class ReservaView implements PropertyChangeListener {
             throw new RuntimeException("No se pudo cargar ReservaView.fxml", e);
         }
 
+        FechaConverter.aplicar(dpFecha);
+
         listCategorias.getSelectionModel().setSelectionMode(javafx.scene.control.SelectionMode.MULTIPLE);
         for (int h = 6; h <= 22; h++) {
             LocalTime hora = LocalTime.of(h, 0);
@@ -78,12 +82,23 @@ public class ReservaView implements PropertyChangeListener {
         return root;
     }
 
+    public boolean confirmar(String mensaje) {
+        // "Cancelar" como botón confunde cuando lo que se pregunta es si cancelar la reserva
+        return Confirmacion.confirmar(root, "Cancelar reserva", mensaje, "Sí, cancelar", "No");
+    }
+
     public void setController(ReservaController controller) {
         btnExtraer.setOnAction(e -> controller.extraerConIA(txtFrase.getText()));
-        btnReservar.setOnAction(e -> controller.crear(
-                txtActividad.getText(), dpFecha.getValue(),
-                cmbHoraInicio.getValue(), cmbHoraFin.getValue(),
-                listCategorias.getSelectionModel().getSelectedItems()));
+        btnReservar.setOnAction(e -> {
+            if (FechaConverter.esInvalida(dpFecha)) {
+                controller.fechaInvalida();
+                return;
+            }
+            controller.crear(
+                    txtActividad.getText(), dpFecha.getValue(),
+                    cmbHoraInicio.getValue(), cmbHoraFin.getValue(),
+                    listCategorias.getSelectionModel().getSelectedItems());
+        });
         btnCancelar.setOnAction(e -> controller.cancelar(tablaReservas.getSelectionModel().getSelectedItem()));
         btnLimpiar.setOnAction(e -> limpiarFormulario());
         btnPdf.setOnAction(e -> controller.print());
@@ -121,6 +136,7 @@ public class ReservaView implements PropertyChangeListener {
                               LocalTime horaInicio, LocalTime horaFin,
                               List<CategoriaRecurso> categorias) {
         txtActividad.setText(actividad == null ? "" : actividad);
+        FechaConverter.reiniciar(dpFecha);
         dpFecha.setValue(fecha);
         cmbHoraInicio.setValue(horaInicio);
         cmbHoraFin.setValue(horaFin);
@@ -137,6 +153,7 @@ public class ReservaView implements PropertyChangeListener {
 
     public void limpiarFormulario() {
         txtActividad.clear();
+        FechaConverter.reiniciar(dpFecha);
         dpFecha.setValue(null);
         cmbHoraInicio.setValue(null);
         cmbHoraFin.setValue(null);
@@ -146,7 +163,12 @@ public class ReservaView implements PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (ReservaModel.ERROR.equals(evt.getPropertyName())) {
+            lblError.setStyle("-fx-text-fill: red;");
             lblError.setText(model.getError());
+        }
+        if (ReservaModel.EXITO.equals(evt.getPropertyName())) {
+            lblError.setStyle("-fx-text-fill: green;");
+            lblError.setText(model.getExito());
         }
     }
 }

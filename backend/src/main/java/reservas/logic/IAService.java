@@ -4,13 +4,17 @@ import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.service.AiServices;
 
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 public class IAService {
+    // la clave no se sube a github, el archivo esta en el .gitignore
+    public static final String PROPERTIES_FILE_NAME = "/ia.properties";
 
     public DatosReservaIA extraer(String frase, List<CategoriaRecurso> categoriasDisponibles) throws Exception {
         String listaCategorias = categoriasDisponibles.stream()
@@ -18,9 +22,9 @@ public class IAService {
                 .collect(Collectors.joining(", "));
 
         ChatLanguageModel modelo = OpenAiChatModel.builder()
-                .baseUrl("http://langchain4j.dev/demo/openai/v1")
-                .apiKey("demo")
-                .modelName("gpt-4o-mini")
+                .baseUrl("https://openrouter.ai/api/v1")
+                .apiKey(leerApiKey())
+                .modelName("nvidia/nemotron-3.5-super-vl:free")
                 .build();
 
         ReservaExtractorService aiService = AiServices.create(ReservaExtractorService.class, modelo);
@@ -43,5 +47,15 @@ public class IAService {
         }
 
         return new DatosReservaIA(actividad, fecha, horaInicio, horaFin, categoriasElegidas);
+    }
+
+    private String leerApiKey() throws Exception {
+        InputStream entrada = getClass().getResourceAsStream(PROPERTIES_FILE_NAME);
+        if (entrada == null) {
+            throw new Exception("Falta el archivo ia.properties con la clave de la IA");
+        }
+        Properties prop = new Properties();
+        prop.load(entrada);
+        return prop.getProperty("ia_api_key");
     }
 }

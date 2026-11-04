@@ -20,15 +20,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BackendProxy {
+    // lo que ve el usuario si se cae la conexión, en vez de "Connection reset" o "Broken pipe"
+    public static final String SIN_CONEXION = "No se pudo conectar con el servidor. Cerrá y volvé a abrir la aplicación.";
+
     private Socket socket;
     private ObjectOutputStream salida;
     private ObjectInputStream entrada;
 
     public void conectar(String host, int puerto) throws IOException {
-        socket = new Socket(host, puerto);
-        salida = new ObjectOutputStream(socket.getOutputStream());
-        salida.flush();
-        entrada = new ObjectInputStream(socket.getInputStream());
+        try {
+            socket = new Socket(host, puerto);
+            salida = new ObjectOutputStream(socket.getOutputStream());
+            salida.flush();
+            entrada = new ObjectInputStream(socket.getInputStream());
+        } catch (IOException e) {
+            throw new IOException(SIN_CONEXION, e);
+        }
     }
 
     public void desconectar() {
@@ -166,9 +173,15 @@ public class BackendProxy {
 
     // synchronized pq es un solo socket y la IA lo usa desde otro hilo, si no se cruzan las respuestas
     private synchronized Respuesta enviar(Peticion peticion) throws Exception {
-        salida.writeObject(peticion);
-        salida.flush();
-        Respuesta respuesta = (Respuesta) entrada.readObject();
+        Respuesta respuesta;
+        try {
+            salida.writeObject(peticion);
+            salida.flush();
+            respuesta = (Respuesta) entrada.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new Exception(SIN_CONEXION, e);
+        }
+        // los errores de negocio que manda el Backend se muestran tal cual
         if (!respuesta.isOk()) {
             throw new Exception(respuesta.getError());
         }

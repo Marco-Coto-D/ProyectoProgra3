@@ -55,6 +55,9 @@ public class CategoriaController {
             model.setError("Seleccioná una categoría de la tabla");
             return;
         }
+        if (!view.confirmar("¿Borrar la categoría «" + seleccionada.getDescripcion() + "»?")) {
+            return;
+        }
         try {
             proxy.borrarCategoria(seleccionada.getId());
         } catch (Exception e) {

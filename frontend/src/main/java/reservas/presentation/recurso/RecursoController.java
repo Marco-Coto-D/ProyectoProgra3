@@ -63,6 +63,9 @@ public class RecursoController {
             model.setError("Seleccioná un recurso de la tabla");
             return;
         }
+        if (!view.confirmar("¿Borrar el recurso «" + seleccionado.getId() + " - " + seleccionado.getDescripcion() + "»?")) {
+            return;
+        }
         try {
             proxy.borrarRecurso(seleccionado.getId());
         } catch (Exception e) {

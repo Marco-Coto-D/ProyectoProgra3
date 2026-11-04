@@ -34,3 +34,6 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Clave de la IA (no subir) ###
+backend/src/main/resources/ia.properties

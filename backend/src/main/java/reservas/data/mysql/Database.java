@@ -5,7 +5,7 @@ import java.util.Properties;
 
 public class Database {
     private static Database theInstance;
-    public static Database instance(){
+    public static synchronized Database instance(){
         if (theInstance==null){
             theInstance=new Database();
         }

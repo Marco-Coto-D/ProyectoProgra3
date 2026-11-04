@@ -34,8 +34,7 @@ public class Main extends Application {
         try {
             conectar();
         } catch (Exception e) {
-            Alert alerta = new Alert(AlertType.ERROR,
-                    "No se pudo conectar con el servidor (" + e.getMessage() + ")");
+            Alert alerta = new Alert(AlertType.ERROR, e.getMessage());
             alerta.setHeaderText(null);
             alerta.showAndWait();
             Platform.exit();

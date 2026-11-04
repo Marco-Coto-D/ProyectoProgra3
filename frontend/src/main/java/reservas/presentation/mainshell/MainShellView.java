@@ -10,6 +10,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import reservas.logic.Funcionario;
+import reservas.logic.Usuario;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -100,7 +102,7 @@ public class MainShellView implements PropertyChangeListener {
     }
 
     public void mostrar() {
-        stage.setTitle("Sistema de Reserva de Recursos");
+        stage.setTitle(titulo());
         stage.getIcons().add(new Image(getClass().getResourceAsStream("/reservas/presentation/iconos/icon.png")));
         stage.setScene(new Scene(root));
         stage.show();
@@ -108,8 +110,20 @@ public class MainShellView implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (MainShellModel.USUARIO.equals(evt.getPropertyName()) && model.getUsuario() != null) {
-            stage.setTitle("Sistema de Reserva de Recursos - " + model.getUsuario().getId());
+        if (MainShellModel.USUARIO.equals(evt.getPropertyName())) {
+            stage.setTitle(titulo());
         }
+    }
+
+    // el título dice quién está conectado: "101 - Ana Rodríguez" o "999 (Administrador)"
+    private String titulo() {
+        Usuario usuario = model == null ? null : model.getUsuario();
+        if (usuario == null) {
+            return "Sistema de Reserva de Recursos";
+        }
+        String quien = usuario instanceof Funcionario f
+                ? f.getId() + " - " + f.getNombre()
+                : usuario.getId() + " (Administrador)";
+        return "Sistema de Reserva de Recursos - " + quien;
     }
 }

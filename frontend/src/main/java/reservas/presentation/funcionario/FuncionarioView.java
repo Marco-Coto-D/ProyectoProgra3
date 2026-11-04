@@ -13,6 +13,7 @@ import reservas.logic.Funcionario;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import reservas.presentation.Confirmacion;
 
 public class FuncionarioView implements PropertyChangeListener {
 
@@ -60,6 +61,10 @@ public class FuncionarioView implements PropertyChangeListener {
 
     public Parent getRoot() {
         return root;
+    }
+
+    public boolean confirmar(String mensaje) {
+        return Confirmacion.confirmar(root, "Borrar funcionario", mensaje);
     }
 
     public void setController(FuncionarioController controller) {

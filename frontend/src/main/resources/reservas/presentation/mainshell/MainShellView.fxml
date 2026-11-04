@@ -9,6 +9,6 @@
       <Cursor fx:constant="DEFAULT" />
    </cursor>
    <center>
-      <TabPane fx:id="tabs" tabClosingPolicy="UNAVAILABLE" tabMaxHeight="42.0" tabMaxWidth="180.0" tabMinHeight="42.0" tabMinWidth="120.0" />
+      <TabPane fx:id="tabs" tabClosingPolicy="UNAVAILABLE" tabMaxHeight="42.0" tabMaxWidth="180.0" tabMinHeight="42.0" />
    </center>
 </BorderPane>

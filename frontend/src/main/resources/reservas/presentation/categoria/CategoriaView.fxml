@@ -27,9 +27,12 @@
             </HBox>
             <TableView fx:id="tablaCategorias">
                 <columns>
-                    <TableColumn fx:id="colId" text="Id"/>
-                    <TableColumn fx:id="colDescripcion" text="Descripción"/>
+                    <TableColumn fx:id="colId" text="Id" prefWidth="140"/>
+                    <TableColumn fx:id="colDescripcion" text="Descripción" prefWidth="640"/>
                 </columns>
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
+                </columnResizePolicy>
             </TableView>
         </VBox>
     </center>

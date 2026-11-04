@@ -26,8 +26,16 @@ public class Peticion implements Serializable {
         return argumentos[indice];
     }
 
+    // el Backend imprime cada petición; las claves no tienen que quedar en el log
     @Override
     public String toString() {
-        return "Peticion{" + operacion + ", argumentos=" + Arrays.toString(argumentos) + "}";
+        Object[] visibles = argumentos == null ? null : argumentos.clone();
+        if (visibles != null && (operacion == Operacion.AUTENTICAR || operacion == Operacion.CAMBIAR_CLAVE)) {
+            // AUTENTICAR(id, clave) y CAMBIAR_CLAVE(id, claveActual, claveNueva): todo menos el id es clave
+            for (int i = 1; i < visibles.length; i++) {
+                visibles[i] = "***";
+            }
+        }
+        return "Peticion{" + operacion + ", argumentos=" + Arrays.toString(visibles) + "}";
     }
 }

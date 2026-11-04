@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
+import reservas.util.FechaConverter;
 
 public class ActividadView implements PropertyChangeListener {
 
@@ -46,6 +47,8 @@ public class ActividadView implements PropertyChangeListener {
         } catch (IOException e) {
             throw new RuntimeException("No se pudo cargar ActividadView.fxml", e);
         }
+
+        FechaConverter.aplicar(dpFecha);
     }
 
     public Parent getRoot() {
@@ -53,8 +56,19 @@ public class ActividadView implements PropertyChangeListener {
     }
 
     public void setController(ActividadController controller) {
-        dpFecha.valueProperty().addListener((obs, anterior, nuevo) ->
-                controller.cargarSemana(nuevo));
+        dpFecha.valueProperty().addListener((obs, anterior, nuevo) -> {
+            if (FechaConverter.esInvalida(dpFecha)) {
+                controller.fechaInvalida();
+            } else {
+                controller.cargarSemana(nuevo);
+            }
+        });
+        // no hay botón: se avisa apenas se rechaza el texto, aunque la fecha ya estuviera vacía
+        FechaConverter.invalidaProperty(dpFecha).addListener((obs, antes, invalida) -> {
+            if (invalida) {
+                controller.fechaInvalida();
+            }
+        });
         btnPdf.setOnAction(e -> controller.print());
     }
 
@@ -63,14 +77,16 @@ public class ActividadView implements PropertyChangeListener {
         model.addPropertyChangeListener(this);
     }
 
-    public void limpiarGrid() {
+    private void limpiarGrid() {
         gridActividad.getChildren().clear();
         gridActividad.getColumnConstraints().clear();
         gridActividad.getRowConstraints().clear();
     }
 
-    public void dibujarGrid(LocalDate lunes, List<Reserva> reservas) {
+    // la grilla se arma con lo que tiene el model
+    private void dibujarGrid() {
         limpiarGrid();
+        LocalDate lunes = model.getLunes();
 
         Label lblEncabezadoHora = new Label("Hora");
         lblEncabezadoHora.setStyle("-fx-font-weight: bold; -fx-background-color: #d5d8dc; -fx-padding: 5;");
@@ -97,7 +113,7 @@ public class ActividadView implements PropertyChangeListener {
 
             for (int dia = 0; dia < 7; dia++) {
                 LocalDate fecha = lunes.plusDays(dia);
-                List<Reserva> reservasEnCelda = encontrarReservas(reservas, fecha, hora);
+                List<Reserva> reservasEnCelda = model.reservasEn(fecha, hora);
 
                 Label celda;
                 if (!reservasEnCelda.isEmpty()) {
@@ -147,16 +163,16 @@ public class ActividadView implements PropertyChangeListener {
         celda.setClip(clip);
     }
 
-    private List<Reserva> encontrarReservas(List<Reserva> reservas, LocalDate fecha, LocalTime hora) {
-        return reservas.stream()
-                .filter(r -> r.getFecha().equals(fecha))
-                .filter(r -> !hora.isBefore(r.getHoraInicio()) && hora.isBefore(r.getHoraFin()))
-                .collect(Collectors.toList());
-    }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (ActividadModel.ERROR.equals(evt.getPropertyName())) {
+        if (ActividadModel.SEMANA.equals(evt.getPropertyName())) {
+            if (model.getLunes() == null) {
+                limpiarGrid();
+            } else {
+                dibujarGrid();
+            }
+        } else if (ActividadModel.ERROR.equals(evt.getPropertyName())) {
             lblError.setText(model.getError());
         }
     }

@@ -12,17 +12,20 @@
                 <Button fx:id="btnExtraer" text="Extraer con IA"/>
             </HBox>
             <TextField fx:id="txtActividad" promptText="Actividad"/>
-            <DatePicker fx:id="dpFecha"/>
-            <ComboBox fx:id="cmbHoraInicio" promptText="Hora inicio"/>
-            <ComboBox fx:id="cmbHoraFin" promptText="Hora fin"/>
-            <ListView fx:id="listCategorias"/>
+            <HBox spacing="10">
+                <DatePicker fx:id="dpFecha" promptText="Fecha"/>
+                <ComboBox fx:id="cmbHoraInicio" promptText="Hora inicio"/>
+                <ComboBox fx:id="cmbHoraFin" promptText="Hora fin"/>
+            </HBox>
+            <!-- alto fijo: sin esto la lista crece y saca de la pantalla los botones y la tabla -->
+            <ListView fx:id="listCategorias" prefHeight="125" maxHeight="125"/>
             <HBox spacing="10">
                 <Button fx:id="btnReservar" text="Reservar"/>
                 <Button fx:id="btnCancelar" text="Cancelar reserva seleccionada"/>
                 <Button fx:id="btnLimpiar" text="Limpiar"/>
                 <Button fx:id="btnPdf" text="Generar PDF"/>
             </HBox>
-            <Label fx:id="lblError" style="-fx-text-fill: red;"/>
+            <Label fx:id="lblError" style="-fx-text-fill: red;" wrapText="true"/>
         </VBox>
     </top>
     <center>

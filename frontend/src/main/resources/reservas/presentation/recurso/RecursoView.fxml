@@ -29,10 +29,13 @@
             </HBox>
             <TableView fx:id="tablaRecursos">
                 <columns>
-                    <TableColumn fx:id="colId" text="Id"/>
-                    <TableColumn fx:id="colDescripcion" text="Descripción"/>
-                    <TableColumn fx:id="colCategoria" text="Categoría"/>
+                    <TableColumn fx:id="colId" text="Id" prefWidth="120"/>
+                    <TableColumn fx:id="colDescripcion" text="Descripción" prefWidth="420"/>
+                    <TableColumn fx:id="colCategoria" text="Categoría" prefWidth="240"/>
                 </columns>
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
+                </columnResizePolicy>
             </TableView>
         </VBox>
     </center>

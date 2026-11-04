@@ -58,6 +58,9 @@ public class FuncionarioController {
             model.setError("Seleccioná un funcionario de la tabla");
             return;
         }
+        if (!view.confirmar("¿Borrar al funcionario «" + seleccionado.getId() + " - " + seleccionado.getNombre() + "»?")) {
+            return;
+        }
         try {
             proxy.borrarFuncionario(seleccionado.getId());
         } catch (Exception e) {

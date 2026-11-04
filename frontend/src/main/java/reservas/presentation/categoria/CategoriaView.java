@@ -13,6 +13,7 @@ import reservas.logic.CategoriaRecurso;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import reservas.presentation.Confirmacion;
 
 public class CategoriaView implements PropertyChangeListener {
 
@@ -58,6 +59,10 @@ public class CategoriaView implements PropertyChangeListener {
 
     public Parent getRoot() {
         return root;
+    }
+
+    public boolean confirmar(String mensaje) {
+        return Confirmacion.confirmar(root, "Borrar categoría", mensaje);
     }
 
     public void setController(CategoriaController controller) {

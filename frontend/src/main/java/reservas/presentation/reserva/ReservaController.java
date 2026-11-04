@@ -3,6 +3,7 @@ package reservas.presentation.reserva;
 import javafx.application.Platform;
 import reservas.logic.*;
 import reservas.proxy.BackendProxy;
+import reservas.util.FechaConverter;
 import reservas.util.PdfUtil;
 
 import java.time.LocalDate;
@@ -48,8 +49,9 @@ public class ReservaController {
             model.setError("Completá actividad, fecha, horario y al menos una categoría");
             return;
         }
+        Reserva creada;
         try {
-            proxy.crearReserva(actividad, fecha, horaInicio, horaFin, categoriasSeleccionadas);
+            creada = proxy.crearReserva(actividad, fecha, horaInicio, horaFin, categoriasSeleccionadas);
         } catch (Exception e) {
             model.setError(e.getMessage());
             return;
@@ -58,6 +60,19 @@ public class ReservaController {
         model.setError("");
         cargarDatos();
         view.limpiarFormulario();
+        model.setExito(mensajeExito(creada));
+    }
+
+    // el enunciado: el sistema indica si tuvo éxito, y de cada categoría se usa el primer recurso disponible
+    static String mensajeExito(Reserva reserva) {
+        String asignados = reserva.getRecursos().stream()
+                .map(r -> r.getCategoria().getDescripcion() + ": " + r.getId() + " - " + r.getDescripcion())
+                .collect(Collectors.joining("; "));
+        return "Reserva creada con éxito. Se asignó el primer recurso disponible de cada categoría. " + asignados;
+    }
+
+    public void fechaInvalida() {
+        model.setError(FechaConverter.MENSAJE_INVALIDA);
     }
 
     public void print() {
@@ -120,6 +135,14 @@ public class ReservaController {
     public void cancelar(Reserva seleccionada) {
         if (seleccionada == null) {
             model.setError("Seleccioná una reserva de la tabla");
+            return;
+        }
+        // si ya está cancelada no tiene sentido preguntar (el Backend igual lo vuelve a revisar)
+        if (seleccionada.getEstado() == EstadoReserva.CANCELADA) {
+            model.setError("Esta reserva ya está cancelada");
+            return;
+        }
+        if (!view.confirmar("¿Cancelar la reserva «" + seleccionada.getActividad() + "» del " + seleccionada.getFecha() + "?")) {
             return;
         }
         try {

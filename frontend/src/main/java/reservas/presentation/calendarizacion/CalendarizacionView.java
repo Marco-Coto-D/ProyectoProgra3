@@ -22,6 +22,7 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.util.List;
+import reservas.util.FechaConverter;
 
 public class CalendarizacionView implements PropertyChangeListener {
 
@@ -47,6 +48,8 @@ public class CalendarizacionView implements PropertyChangeListener {
         } catch (IOException e) {
             throw new RuntimeException("No se pudo cargar CalendarizacionView.fxml", e);
         }
+
+        FechaConverter.aplicar(dpFecha);
     }
 
     public Parent getRoot() {
@@ -54,11 +57,23 @@ public class CalendarizacionView implements PropertyChangeListener {
     }
 
     public void setController(CalendarizacionController controller) {
-        dpFecha.valueProperty().addListener((obs, anterior, nuevo) ->
-                controller.cargarCalendario(nuevo, cmbCategoria.getValue()));
-        cmbCategoria.setOnAction(e ->
-                controller.cargarCalendario(dpFecha.getValue(), cmbCategoria.getValue()));
+        dpFecha.valueProperty().addListener((obs, anterior, nuevo) -> cargar(controller));
+        cmbCategoria.setOnAction(e -> cargar(controller));
+        // no hay botón: se avisa apenas se rechaza el texto, aunque la fecha ya estuviera vacía
+        FechaConverter.invalidaProperty(dpFecha).addListener((obs, antes, invalida) -> {
+            if (invalida) {
+                controller.fechaInvalida();
+            }
+        });
         btnPdf.setOnAction(e -> controller.print());
+    }
+
+    private void cargar(CalendarizacionController controller) {
+        if (FechaConverter.esInvalida(dpFecha)) {
+            controller.fechaInvalida();
+        } else {
+            controller.cargarCalendario(dpFecha.getValue(), cmbCategoria.getValue());
+        }
     }
 
     public void setModel(CalendarizacionModel model) {
@@ -79,14 +94,16 @@ public class CalendarizacionView implements PropertyChangeListener {
         };
     }
 
-    public void limpiarGrid() {
+    private void limpiarGrid() {
         gridCalendario.getChildren().clear();
         gridCalendario.getColumnConstraints().clear();
         gridCalendario.getRowConstraints().clear();
     }
 
-    public void dibujarGrid(List<Recurso> recursos, List<Reserva> reservas) {
+    // la grilla se arma con lo que tiene el model
+    private void dibujarGrid() {
         limpiarGrid();
+        List<Recurso> recursos = model.getRecursos();
 
         if (recursos.isEmpty()) {
             gridCalendario.add(new Label("No hay recursos en esta categoría"), 0, 0);
@@ -116,7 +133,7 @@ public class CalendarizacionView implements PropertyChangeListener {
             gridCalendario.add(lblHoraFila, 0, fila);
 
             for (int col = 0; col < recursos.size(); col++) {
-                Reserva reservaEnCelda = encontrarReserva(reservas, recursos.get(col), hora);
+                Reserva reservaEnCelda = model.reservaEn(recursos.get(col), hora);
 
                 Label celda;
                 if (reservaEnCelda != null) {
@@ -164,19 +181,16 @@ public class CalendarizacionView implements PropertyChangeListener {
         celda.setClip(clip);
     }
 
-    private Reserva encontrarReserva(List<Reserva> reservas, Recurso recurso, LocalTime hora) {
-        for (Reserva r : reservas) {
-            if (hora.isBefore(r.getHoraInicio()) || !hora.isBefore(r.getHoraFin())) continue;
-            for (Recurso rec : r.getRecursos()) {
-                if (rec.getId().equals(recurso.getId())) return r;
-            }
-        }
-        return null;
-    }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (CalendarizacionModel.ERROR.equals(evt.getPropertyName())) {
+        if (CalendarizacionModel.CALENDARIO.equals(evt.getPropertyName())) {
+            if (model.getFecha() == null) {
+                limpiarGrid();
+            } else {
+                dibujarGrid();
+            }
+        } else if (CalendarizacionModel.ERROR.equals(evt.getPropertyName())) {
             lblError.setText(model.getError());
         }
     }

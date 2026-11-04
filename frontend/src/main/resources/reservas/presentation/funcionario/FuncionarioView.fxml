@@ -25,10 +25,13 @@
             </HBox>
             <TableView fx:id="tablaFuncionarios">
                 <columns>
-                    <TableColumn fx:id="colId" text="Id"/>
-                    <TableColumn fx:id="colNombre" text="Nombre"/>
-                    <TableColumn fx:id="colTelefono" text="Teléfono"/>
+                    <TableColumn fx:id="colId" text="Id" prefWidth="120"/>
+                    <TableColumn fx:id="colNombre" text="Nombre" prefWidth="460"/>
+                    <TableColumn fx:id="colTelefono" text="Teléfono" prefWidth="200"/>
                 </columns>
+                <columnResizePolicy>
+                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS"/>
+                </columnResizePolicy>
             </TableView>
         </VBox>
     </center>

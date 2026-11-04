@@ -81,37 +81,37 @@ public class ManejadorCliente implements Runnable {
                     return Respuesta.ok(Service.instance().listarCategorias());
                 case BUSCAR_CATEGORIAS:
                     return Respuesta.ok(Service.instance().buscarCategorias(
-                            (String) peticion.getArgumento(0)));
+                            (String) peticion.getArgumento(0), sesionId));
                 case GUARDAR_CATEGORIA:
                     Service.instance().guardarCategoria(
-                            (CategoriaRecurso) peticion.getArgumento(0));
+                            (CategoriaRecurso) peticion.getArgumento(0), sesionId);
                     return Respuesta.ok();
                 case BORRAR_CATEGORIA:
                     Service.instance().borrarCategoria(
-                            (String) peticion.getArgumento(0));
+                            (String) peticion.getArgumento(0), sesionId);
                     return Respuesta.ok();
                 case LISTAR_RECURSOS:
-                    return Respuesta.ok(Service.instance().listarRecursos());
+                    return Respuesta.ok(Service.instance().listarRecursos(sesionId));
                 case BUSCAR_RECURSOS:
                     return Respuesta.ok(Service.instance().buscarRecursos(
-                            (String) peticion.getArgumento(0)));
+                            (String) peticion.getArgumento(0), sesionId));
                 case BUSCAR_RECURSOS_POR_CATEGORIA:
                     return Respuesta.ok(Service.instance().buscarRecursosPorCategoria(
                             (String) peticion.getArgumento(0)));
                 case GUARDAR_RECURSO:
                     Service.instance().guardarRecurso(
                             (Recurso) peticion.getArgumento(0),
-                            (Boolean) peticion.getArgumento(1));
+                            (Boolean) peticion.getArgumento(1), sesionId);
                     return Respuesta.ok();
                 case LISTAR_FUNCIONARIOS:
-                    return Respuesta.ok(Service.instance().listarFuncionarios());
+                    return Respuesta.ok(Service.instance().listarFuncionarios(sesionId));
                 case BUSCAR_FUNCIONARIOS:
                     return Respuesta.ok(Service.instance().buscarFuncionarios(
-                            (String) peticion.getArgumento(0)));
+                            (String) peticion.getArgumento(0), sesionId));
                 case GUARDAR_FUNCIONARIO:
                     Service.instance().guardarFuncionario(
                             (Funcionario) peticion.getArgumento(0),
-                            (Boolean) peticion.getArgumento(1));
+                            (Boolean) peticion.getArgumento(1), sesionId);
                     return Respuesta.ok();
                 case LISTAR_MIS_RESERVAS:
                     return Respuesta.ok(Service.instance().listarMisReservas(sesionId));
@@ -136,11 +136,11 @@ public class ManejadorCliente implements Runnable {
                     return Respuesta.ok();
                 case BORRAR_RECURSO:
                     Service.instance().borrarRecurso(
-                            (String) peticion.getArgumento(0));
+                            (String) peticion.getArgumento(0), sesionId);
                     return Respuesta.ok();
                 case BORRAR_FUNCIONARIO:
                     Service.instance().borrarFuncionario(
-                            (String) peticion.getArgumento(0));
+                            (String) peticion.getArgumento(0), sesionId);
                     return Respuesta.ok();
                 case EXTRAER_IA:
                     return Respuesta.ok(Service.instance().extraerIA(
