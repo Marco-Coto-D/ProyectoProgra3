@@ -2,25 +2,32 @@
 SET NAMES utf8mb4;
 
 CREATE DATABASE IF NOT EXISTS reservas
-    CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+    CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE reservas;
 
 CREATE TABLE IF NOT EXISTS categoria_recurso (
     id          VARCHAR(50)  NOT NULL PRIMARY KEY,
     descripcion VARCHAR(150) NOT NULL
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS funcionario (
     id       VARCHAR(50)  NOT NULL PRIMARY KEY,
     clave    VARCHAR(100) NOT NULL,
     nombre   VARCHAR(150) NOT NULL,
     telefono VARCHAR(30)
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- funcionarios de demo (clave = id)
+INSERT INTO funcionario (id, clave, nombre, telefono) VALUES
+    ('111', '111', 'Fabian Moya', '8811-1111'),
+    ('222', '222', 'Marco Coto',  '8822-2222'),
+    ('333', '333', 'Jose Fabio',  '8833-3333')
+ON DUPLICATE KEY UPDATE clave = clave;
 
 CREATE TABLE IF NOT EXISTS administrador (
     id    VARCHAR(50)  NOT NULL PRIMARY KEY,
     clave VARCHAR(100) NOT NULL
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- admin inicial, sin al menos uno no hay forma de entrar
 INSERT INTO administrador (id, clave) VALUES ('999', '999')
@@ -31,7 +38,7 @@ CREATE TABLE IF NOT EXISTS recurso (
     descripcion VARCHAR(150) NOT NULL,
     categoria   VARCHAR(50)  NOT NULL,
     FOREIGN KEY (categoria) REFERENCES categoria_recurso(id)
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS reserva (
     id          VARCHAR(50)  NOT NULL PRIMARY KEY,
@@ -42,7 +49,7 @@ CREATE TABLE IF NOT EXISTS reserva (
     funcionario VARCHAR(50)  NOT NULL,
     estado      VARCHAR(20)  NOT NULL,
     FOREIGN KEY (funcionario) REFERENCES funcionario(id)
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS reserva_recurso (
     reserva VARCHAR(50) NOT NULL,
@@ -50,4 +57,4 @@ CREATE TABLE IF NOT EXISTS reserva_recurso (
     PRIMARY KEY (reserva, recurso),
     FOREIGN KEY (reserva) REFERENCES reserva(id),
     FOREIGN KEY (recurso) REFERENCES recurso(id)
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

@@ -73,35 +73,38 @@ public class RecursoDao {
         return recursos;
     }
 
-    public void create(Recurso r){
-        try {
-            String sql = "insert into recurso (id, descripcion, categoria) values (?, ?, ?)";
-            PreparedStatement stm = db.prepareStatement(sql);
-            stm.setString(1, r.getId());
-            stm.setString(2, r.getDescripcion());
-            stm.setString(3, r.getCategoria().getId());
-            db.executeUpdate(stm);
-        } catch (SQLException ex) { }
+    public void create(Recurso r) throws Exception {
+        String sql = "insert into recurso (id, descripcion, categoria) values (?, ?, ?)";
+        PreparedStatement stm = db.prepareStatement(sql);
+        stm.setString(1, r.getId());
+        stm.setString(2, r.getDescripcion());
+        stm.setString(3, r.getCategoria().getId());
+        int count = db.executeUpdate(stm);
+        if (count == 0) {
+            throw new Exception("No se pudo guardar el recurso");
+        }
     }
 
-    public void update(Recurso r){
-        try {
-            String sql = "update recurso set descripcion=?, categoria=? where id=?";
-            PreparedStatement stm = db.prepareStatement(sql);
-            stm.setString(1, r.getDescripcion());
-            stm.setString(2, r.getCategoria().getId());
-            stm.setString(3, r.getId());
-            db.executeUpdate(stm);
-        } catch (SQLException ex) { }
+    public void update(Recurso r) throws Exception {
+        String sql = "update recurso set descripcion=?, categoria=? where id=?";
+        PreparedStatement stm = db.prepareStatement(sql);
+        stm.setString(1, r.getDescripcion());
+        stm.setString(2, r.getCategoria().getId());
+        stm.setString(3, r.getId());
+        int count = db.executeUpdate(stm);
+        if (count == 0) {
+            throw new Exception("No se pudo guardar el recurso");
+        }
     }
 
-    public void delete(String id){
-        try {
-            String sql = "delete from recurso where id=?";
-            PreparedStatement stm = db.prepareStatement(sql);
-            stm.setString(1, id);
-            db.executeUpdate(stm);
-        } catch (SQLException ex) { }
+    public void delete(String id) throws Exception {
+        String sql = "delete from recurso where id=?";
+        PreparedStatement stm = db.prepareStatement(sql);
+        stm.setString(1, id);
+        int count = db.executeUpdate(stm);
+        if (count == 0) {
+            throw new Exception("No se pudo borrar el recurso");
+        }
     }
 
     public Recurso from(ResultSet rs, String alias){

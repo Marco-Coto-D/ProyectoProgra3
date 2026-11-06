@@ -57,7 +57,7 @@ class AutenticacionServiceIT {
     }
 
     @Test
-    void cambiarClaveActualizaYPersiste() {
+    void cambiarClaveActualizaYPersiste() throws Exception {
         Funcionario f = (Funcionario) servicio.autenticar("TEST-F001", "clave123");
         servicio.cambiarClave(f, "nuevaClave");
 
@@ -67,7 +67,7 @@ class AutenticacionServiceIT {
     }
 
     @Test
-    void cambiarClaveAdministrador() {
+    void cambiarClaveAdministrador() throws Exception {
         Administrador a = (Administrador) servicio.autenticar("TEST-ADMIN", "admin123");
         servicio.cambiarClave(a, "nuevoAdmin");
 

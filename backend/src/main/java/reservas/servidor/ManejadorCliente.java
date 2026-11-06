@@ -41,6 +41,9 @@ public class ManejadorCliente implements Runnable {
                     salida.flush();
                 }
             }
+        } catch (java.io.EOFException e) {
+            // el cliente cerró la conexión de forma normal
+            System.out.println("Cliente desconectado (" + socket.getInetAddress() + ")");
         } catch (Exception e) {
             System.out.println("Cliente desconectado (" + socket.getInetAddress() + "): " + e.getMessage());
         } finally {
@@ -117,6 +120,14 @@ public class ManejadorCliente implements Runnable {
                     return Respuesta.ok(Service.instance().listarMisReservas(sesionId));
                 case LISTAR_RESERVAS_ENTRE:
                     return Respuesta.ok(Service.instance().listarReservasEntre(
+                            (LocalDate) peticion.getArgumento(0),
+                            (LocalDate) peticion.getArgumento(1)));
+                case CONTAR_RECURSOS_POR_CATEGORIA:
+                    return Respuesta.ok(Service.instance().contarRecursosPorCategoria(
+                            (LocalDate) peticion.getArgumento(0),
+                            (LocalDate) peticion.getArgumento(1)));
+                case CONTAR_ACTIVIDADES_POR_SEMANA:
+                    return Respuesta.ok(Service.instance().contarActividadesPorSemana(
                             (LocalDate) peticion.getArgumento(0),
                             (LocalDate) peticion.getArgumento(1)));
                 case CREAR_RESERVA:

@@ -124,6 +124,11 @@ public class EstadisticaView implements PropertyChangeListener {
     }
 
     private void mostrarRecursos(Map<String, Long> conteo) {
+        if (conteo == null) {
+            tablaRecursos.getItems().clear();
+            chartRecursos.getData().clear();
+            return;
+        }
         tablaRecursos.setItems(FXCollections.observableArrayList(conteo.entrySet()));
 
         XYChart.Series<String, Number> serie = new XYChart.Series<>();
@@ -134,6 +139,11 @@ public class EstadisticaView implements PropertyChangeListener {
     }
 
     private void mostrarActividades(Map<String, Long> conteo) {
+        if (conteo == null) {
+            tablaActividades.getItems().clear();
+            chartActividades.getData().clear();
+            return;
+        }
         tablaActividades.setItems(FXCollections.observableArrayList(conteo.entrySet()));
 
         XYChart.Series<String, Number> serie = new XYChart.Series<>();

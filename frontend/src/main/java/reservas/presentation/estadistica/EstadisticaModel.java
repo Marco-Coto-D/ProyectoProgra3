@@ -53,4 +53,15 @@ public class EstadisticaModel extends AbstractModel {
         this.conteoActividades = conteo;
         firePropertyChange(ACTIVIDADES);
     }
+
+    /** la carga falló: se borra lo anterior para que la tabla, el gráfico y el PDF no muestren datos viejos */
+    public void errorAlCargarRecursos(String error) {
+        setConteoRecursos(null);
+        setErrorRecursos(error);
+    }
+
+    public void errorAlCargarActividades(String error) {
+        setConteoActividades(null);
+        setErrorActividades(error);
+    }
 }

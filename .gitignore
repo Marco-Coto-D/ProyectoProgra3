@@ -35,5 +35,6 @@ build/
 ### Mac OS ###
 .DS_Store
 
-### Clave de la IA (no subir) ###
+### PDFs que genera la aplicación ###
+reportes/
 backend/src/main/resources/ia.properties

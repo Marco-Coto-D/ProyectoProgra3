@@ -71,6 +71,20 @@ public class ReservaController {
         return "Reserva creada con éxito. Se asignó el primer recurso disponible de cada categoría. " + asignados;
     }
 
+    // el enunciado: solo se puede cancelar una reserva futura
+    static String motivoParaNoCancelar(Reserva reserva, LocalDate hoy, LocalTime ahora) {
+        if (reserva.getEstado() == EstadoReserva.CANCELADA) {
+            return "Esta reserva ya está cancelada";
+        }
+        if (reserva.getFecha().isBefore(hoy)) {
+            return "No se puede cancelar una reserva pasada";
+        }
+        if (reserva.getFecha().equals(hoy) && !ahora.isBefore(reserva.getHoraInicio())) {
+            return "Esta reserva ya inició, no se puede cancelar";
+        }
+        return null;
+    }
+
     public void fechaInvalida() {
         model.setError(FechaConverter.MENSAJE_INVALIDA);
     }
@@ -137,9 +151,10 @@ public class ReservaController {
             model.setError("Seleccioná una reserva de la tabla");
             return;
         }
-        // si ya está cancelada no tiene sentido preguntar (el Backend igual lo vuelve a revisar)
-        if (seleccionada.getEstado() == EstadoReserva.CANCELADA) {
-            model.setError("Esta reserva ya está cancelada");
+        // si no se puede cancelar no tiene sentido preguntar (el Backend igual lo vuelve a revisar)
+        String motivo = motivoParaNoCancelar(seleccionada, LocalDate.now(), LocalTime.now());
+        if (motivo != null) {
+            model.setError(motivo);
             return;
         }
         if (!view.confirmar("¿Cancelar la reserva «" + seleccionada.getActividad() + "» del " + seleccionada.getFecha() + "?")) {

@@ -1,19 +1,17 @@
 package reservas.presentation.estadistica;
 
-import reservas.logic.EstadisticaUtil;
-import reservas.logic.EstadoReserva;
 import reservas.proxy.BackendProxy;
 import reservas.util.FechaConverter;
 import reservas.util.PdfUtil;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class EstadisticaController {
+    static final String SIN_RECURSOS = "No hay recursos reservados en ese período";
+
     private final EstadisticaView view;
     private final EstadisticaModel model;
     private final BackendProxy proxy;
@@ -30,45 +28,41 @@ public class EstadisticaController {
 
     public void cargarRecursos(LocalDate desde, LocalDate hasta) {
         if (desde == null || hasta == null) {
-            model.setErrorRecursos("Seleccioná ambas fechas");
+            model.errorAlCargarRecursos("Seleccioná ambas fechas");
             return;
         }
-        if (hasta.isBefore(desde)) {
-            model.setErrorRecursos("'Hasta' debe ser posterior a 'Desde'");
-            return;
-        }
-
+        // el período al revés lo rechaza el Backend
         Map<String, Long> conteo;
         try {
-            Map<String, Long> conteoPorId = proxy.listarReservasEntre(desde, hasta).stream()
-                    .filter(r -> r.getEstado() == EstadoReserva.ACTIVADA)
-                    .flatMap(r -> r.getRecursos().stream())
-                    .collect(Collectors.groupingBy(
-                            rec -> rec.getCategoria().getId(),
-                            Collectors.counting()
-                    ));
-            conteo = EstadisticaUtil.resolverDescripciones(conteoPorId, proxy.listarCategorias());
+            conteo = proxy.contarRecursosPorCategoria(desde, hasta);
         } catch (Exception e) {
-            model.setErrorRecursos(e.getMessage());
+            model.errorAlCargarRecursos(e.getMessage());
             return;
         }
 
         model.setErrorRecursos("");
         model.setConteoRecursos(conteo);
+        if (conteo.isEmpty()) {
+            model.setErrorRecursos(SIN_RECURSOS);
+        }
     }
 
     public void fechaInvalidaRecursos() {
-        model.setErrorRecursos(FechaConverter.MENSAJE_INVALIDA);
+        model.errorAlCargarRecursos(FechaConverter.MENSAJE_INVALIDA);
     }
 
     public void fechaInvalidaActividades() {
-        model.setErrorActividades(FechaConverter.MENSAJE_INVALIDA);
+        model.errorAlCargarActividades(FechaConverter.MENSAJE_INVALIDA);
     }
 
     public void printRecursos() {
         Map<String, Long> conteo = model.getConteoRecursos();
-        if (conteo == null || conteo.isEmpty()) {
+        if (conteo == null) {
             model.setErrorRecursos("Cargá los datos antes de generar el PDF");
+            return;
+        }
+        if (conteo.isEmpty()) {
+            model.setErrorRecursos(SIN_RECURSOS);
             return;
         }
         List<String> encabezados = List.of("Categoría", "Cantidad");
@@ -86,28 +80,16 @@ public class EstadisticaController {
 
     public void cargarActividades(LocalDate desde, LocalDate hasta) {
         if (desde == null || hasta == null) {
-            model.setErrorActividades("Seleccioná ambas fechas");
+            model.errorAlCargarActividades("Seleccioná ambas fechas");
             return;
         }
-        if (hasta.isBefore(desde)) {
-            model.setErrorActividades("'Hasta' debe ser posterior a 'Desde'");
-            return;
-        }
-
-        Map<LocalDate, Long> conteoPorLunes;
+        Map<String, Long> conteo;
         try {
-            conteoPorLunes = proxy.listarReservasEntre(desde, hasta).stream()
-                    .filter(r -> r.getEstado() == EstadoReserva.ACTIVADA)
-                    .collect(Collectors.groupingBy(
-                            r -> r.getFecha().with(DayOfWeek.MONDAY),
-                            Collectors.counting()
-                    ));
+            conteo = proxy.contarActividadesPorSemana(desde, hasta);
         } catch (Exception e) {
-            model.setErrorActividades(e.getMessage());
+            model.errorAlCargarActividades(e.getMessage());
             return;
         }
-
-        Map<String, Long> conteo = EstadisticaUtil.completarSemanas(conteoPorLunes, desde, hasta);
 
         model.setErrorActividades("");
         model.setConteoActividades(conteo);

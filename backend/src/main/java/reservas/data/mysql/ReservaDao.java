@@ -88,38 +88,55 @@ public class ReservaDao {
         return reservas;
     }
 
-    public void create(Reserva r){
-        try {
-            String sql = "insert into reserva (id, actividad, fecha, hora_inicio, hora_fin, funcionario, estado) " +
-                    "values (?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement stm = db.prepareStatement(sql);
-            stm.setString(1, r.getId());
-            stm.setString(2, r.getActividad());
-            stm.setObject(3, r.getFecha());
-            stm.setObject(4, r.getHoraInicio());
-            stm.setObject(5, r.getHoraFin());
-            stm.setString(6, r.getFuncionario().getId());
-            stm.setString(7, r.getEstado().name());
-            db.executeUpdate(stm);
+    public void create(Reserva r) throws Exception {
+        String sql = "insert into reserva (id, actividad, fecha, hora_inicio, hora_fin, funcionario, estado) " +
+                "values (?, ?, ?, ?, ?, ?, ?)";
+        PreparedStatement stm = db.prepareStatement(sql);
+        stm.setString(1, r.getId());
+        stm.setString(2, r.getActividad());
+        stm.setObject(3, r.getFecha());
+        stm.setObject(4, r.getHoraInicio());
+        stm.setObject(5, r.getHoraFin());
+        stm.setString(6, r.getFuncionario().getId());
+        stm.setString(7, r.getEstado().name());
+        int count = db.executeUpdate(stm);
+        if (count == 0) {
+            throw new Exception("No se pudo guardar la reserva");
+        }
 
-            for (Recurso recurso : r.getRecursos()) {
-                String sqlRecurso = "insert into reserva_recurso (reserva, recurso) values (?, ?)";
-                PreparedStatement stmRecurso = db.prepareStatement(sqlRecurso);
-                stmRecurso.setString(1, r.getId());
-                stmRecurso.setString(2, recurso.getId());
-                db.executeUpdate(stmRecurso);
+        for (Recurso recurso : r.getRecursos()) {
+            String sqlRecurso = "insert into reserva_recurso (reserva, recurso) values (?, ?)";
+            PreparedStatement stmRecurso = db.prepareStatement(sqlRecurso);
+            stmRecurso.setString(1, r.getId());
+            stmRecurso.setString(2, recurso.getId());
+            count = db.executeUpdate(stmRecurso);
+            if (count == 0) {
+                // sin transaccion: se deshace a mano lo que ya se habia guardado de esta reserva
+                borrar(r.getId());
+                throw new Exception("No se pudo guardar la reserva");
             }
-        } catch (SQLException ex) { }
+        }
     }
 
-    public void updateEstado(String id, EstadoReserva estado){
-        try {
-            String sql = "update reserva set estado=? where id=?";
-            PreparedStatement stm = db.prepareStatement(sql);
-            stm.setString(1, estado.name());
-            stm.setString(2, id);
-            db.executeUpdate(stm);
-        } catch (SQLException ex) { }
+    // primero sus recursos y despues la reserva, por la llave foranea
+    private void borrar(String id) throws Exception {
+        PreparedStatement stmRecursos = db.prepareStatement("delete from reserva_recurso where reserva=?");
+        stmRecursos.setString(1, id);
+        db.executeUpdate(stmRecursos);
+        PreparedStatement stmReserva = db.prepareStatement("delete from reserva where id=?");
+        stmReserva.setString(1, id);
+        db.executeUpdate(stmReserva);
+    }
+
+    public void updateEstado(String id, EstadoReserva estado) throws Exception {
+        String sql = "update reserva set estado=? where id=?";
+        PreparedStatement stm = db.prepareStatement(sql);
+        stm.setString(1, estado.name());
+        stm.setString(2, id);
+        int count = db.executeUpdate(stm);
+        if (count == 0) {
+            throw new Exception("La reserva no existe");
+        }
     }
 
     public List<Recurso> findRecursos(String reservaId){

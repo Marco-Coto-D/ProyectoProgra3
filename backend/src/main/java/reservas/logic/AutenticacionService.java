@@ -27,7 +27,7 @@ public class AutenticacionService {
         return null;
     }
 
-    public void cambiarClave(Usuario usuario, String claveNueva) {
+    public void cambiarClave(Usuario usuario, String claveNueva) throws Exception {
         usuario.setClave(claveNueva);
         if (usuario instanceof Funcionario f) {
             funcionarioDao.update(f);

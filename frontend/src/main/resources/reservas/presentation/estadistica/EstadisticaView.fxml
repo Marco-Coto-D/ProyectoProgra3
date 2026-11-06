@@ -25,8 +25,9 @@
                             <TableColumn fx:id="colCantidadRecurso" text="Cantidad" prefWidth="80"/>
                         </columns>
                     </TableView>
-                    <BarChart fx:id="chartRecursos" prefHeight="250" prefWidth="380" animated="false" legendVisible="false">
-                        <xAxis><CategoryAxis label="Categoría"/></xAxis>
+                    <!-- etiquetas siempre verticales: con nombres largos JavaFX escondía alguna -->
+                    <BarChart fx:id="chartRecursos" prefHeight="330" prefWidth="380" animated="false" legendVisible="false">
+                        <xAxis><CategoryAxis label="Categoría" tickLabelRotation="90"/></xAxis>
                         <yAxis><NumberAxis label="Cantidad"/></yAxis>
                     </BarChart>
                 </VBox>
@@ -48,8 +49,8 @@
                             <TableColumn fx:id="colCantidadActividad" text="Cantidad" prefWidth="80"/>
                         </columns>
                     </TableView>
-                    <BarChart fx:id="chartActividades" prefHeight="250" prefWidth="380" animated="false" legendVisible="false">
-                        <xAxis><CategoryAxis label="Semana"/></xAxis>
+                    <BarChart fx:id="chartActividades" prefHeight="330" prefWidth="380" animated="false" legendVisible="false">
+                        <xAxis><CategoryAxis label="Semana" tickLabelRotation="90"/></xAxis>
                         <yAxis><NumberAxis label="Cantidad"/></yAxis>
                     </BarChart>
                 </VBox>

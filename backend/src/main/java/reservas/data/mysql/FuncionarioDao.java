@@ -56,37 +56,40 @@ public class FuncionarioDao {
         return null;
     }
 
-    public void create(Funcionario f){
-        try {
-            String sql = "insert into funcionario (id, clave, nombre, telefono) values (?, ?, ?, ?)";
-            PreparedStatement stm = db.prepareStatement(sql);
-            stm.setString(1, f.getId());
-            stm.setString(2, f.getClave());
-            stm.setString(3, f.getNombre());
-            stm.setString(4, f.getTelefono());
-            db.executeUpdate(stm);
-        } catch (SQLException ex) { }
+    public void create(Funcionario f) throws Exception {
+        String sql = "insert into funcionario (id, clave, nombre, telefono) values (?, ?, ?, ?)";
+        PreparedStatement stm = db.prepareStatement(sql);
+        stm.setString(1, f.getId());
+        stm.setString(2, f.getClave());
+        stm.setString(3, f.getNombre());
+        stm.setString(4, f.getTelefono());
+        int count = db.executeUpdate(stm);
+        if (count == 0) {
+            throw new Exception("No se pudo guardar el funcionario");
+        }
     }
 
-    public void update(Funcionario f){
-        try {
-            String sql = "update funcionario set clave=?, nombre=?, telefono=? where id=?";
-            PreparedStatement stm = db.prepareStatement(sql);
-            stm.setString(1, f.getClave());
-            stm.setString(2, f.getNombre());
-            stm.setString(3, f.getTelefono());
-            stm.setString(4, f.getId());
-            db.executeUpdate(stm);
-        } catch (SQLException ex) { }
+    public void update(Funcionario f) throws Exception {
+        String sql = "update funcionario set clave=?, nombre=?, telefono=? where id=?";
+        PreparedStatement stm = db.prepareStatement(sql);
+        stm.setString(1, f.getClave());
+        stm.setString(2, f.getNombre());
+        stm.setString(3, f.getTelefono());
+        stm.setString(4, f.getId());
+        int count = db.executeUpdate(stm);
+        if (count == 0) {
+            throw new Exception("El funcionario no existe");
+        }
     }
 
-    public void delete(String id){
-        try {
-            String sql = "delete from funcionario where id=?";
-            PreparedStatement stm = db.prepareStatement(sql);
-            stm.setString(1, id);
-            db.executeUpdate(stm);
-        } catch (SQLException ex) { }
+    public void delete(String id) throws Exception {
+        String sql = "delete from funcionario where id=?";
+        PreparedStatement stm = db.prepareStatement(sql);
+        stm.setString(1, id);
+        int count = db.executeUpdate(stm);
+        if (count == 0) {
+            throw new Exception("No se pudo borrar el funcionario");
+        }
     }
 
     public Funcionario from(ResultSet rs, String alias){

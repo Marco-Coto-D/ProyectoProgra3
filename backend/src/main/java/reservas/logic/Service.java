@@ -8,6 +8,7 @@ import reservas.data.mysql.RecursoDao;
 import reservas.data.mysql.ReservaDao;
 import reservas.servidor.Notificador;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class Service {
     private static Service theInstance;
@@ -155,6 +157,10 @@ public class Service {
         if (errorId.isPresent()) {
             throw new Exception(errorId.get());
         }
+        // otra ventana pudo haberla borrado despues de que se cargo el combo
+        if (recurso.getCategoria() == null || categoriaRecursoDao.read(recurso.getCategoria().getId()) == null) {
+            throw new Exception("La categoría seleccionada ya no existe");
+        }
         if (esNuevo) {
             recursoDao.create(recurso);
         } else {
@@ -213,12 +219,43 @@ public class Service {
         return reservaDao.findEntre(desde, hasta);
     }
 
+    // abiertas a los funcionarios: también ven Estadísticas
+    public Map<String, Long> contarRecursosPorCategoria(LocalDate desde, LocalDate hasta) throws Exception {
+        validarPeriodo(desde, hasta);
+        Map<String, Long> conteoPorId = reservaDao.findEntre(desde, hasta).stream()
+                .filter(r -> r.getEstado() == EstadoReserva.ACTIVADA)
+                .flatMap(r -> r.getRecursos().stream())
+                .collect(Collectors.groupingBy(rec -> rec.getCategoria().getId(), Collectors.counting()));
+        return EstadisticaUtil.resolverDescripciones(conteoPorId, categoriaRecursoDao.findAll());
+    }
+
+    public Map<String, Long> contarActividadesPorSemana(LocalDate desde, LocalDate hasta) throws Exception {
+        validarPeriodo(desde, hasta);
+        Map<LocalDate, Long> conteoPorLunes = reservaDao.findEntre(desde, hasta).stream()
+                .filter(r -> r.getEstado() == EstadoReserva.ACTIVADA)
+                .collect(Collectors.groupingBy(r -> r.getFecha().with(DayOfWeek.MONDAY), Collectors.counting()));
+        return EstadisticaUtil.completarSemanas(conteoPorLunes, desde, hasta);
+    }
+
+    private void validarPeriodo(LocalDate desde, LocalDate hasta) throws Exception {
+        if (desde == null || hasta == null) {
+            throw new Exception("Seleccioná ambas fechas");
+        }
+        if (hasta.isBefore(desde)) {
+            throw new Exception("'Hasta' debe ser posterior a 'Desde'");
+        }
+    }
+
     // synchronized pq si dos piden el mismo recurso a la vez los dos lo ven libre y queda reservado doble
     public synchronized Reserva crearReserva(String actividad, LocalDate fecha, LocalTime horaInicio, LocalTime horaFin,
                                              String sesionId, List<CategoriaRecurso> categorias) throws Exception {
         Usuario usuario = usuarioDeSesion(sesionId);
         if (!(usuario instanceof Funcionario)) {
             throw new Exception("Solo los funcionarios pueden hacer reservas");
+        }
+        Optional<String> errorCampos = ValidadorCampos.validarReserva(actividad, fecha, horaInicio, horaFin, categorias);
+        if (errorCampos.isPresent()) {
+            throw new Exception(errorCampos.get());
         }
         // si la actividad no cabe en la base la reserva no se guarda, y no se puede notificar a los demas
         Optional<String> errorLargo = ValidadorLargo.validarActividad(actividad);
@@ -319,6 +356,10 @@ public class Service {
     }
 
     public void cambiarClave(String id, String claveActual, String claveNueva) throws Exception {
+        Optional<String> errorVacia = ValidadorCampos.validarClaveNueva(claveNueva);
+        if (errorVacia.isPresent()) {
+            throw new Exception(errorVacia.get());
+        }
         Optional<String> errorLargo = ValidadorLargo.validarClave(claveNueva);
         if (errorLargo.isPresent()) {
             throw new Exception(errorLargo.get());

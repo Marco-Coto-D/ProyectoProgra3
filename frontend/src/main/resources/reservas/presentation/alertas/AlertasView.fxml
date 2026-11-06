@@ -16,9 +16,9 @@
                 <Label text="No hay alertas"/>
             </placeholder>
             <columns>
-                <TableColumn fx:id="colActividad" text="Actividad" prefWidth="150"/>
+                <TableColumn fx:id="colActividad" text="Actividad" prefWidth="130"/>
                 <TableColumn fx:id="colVer" text="Ver" prefWidth="40" sortable="false" style="-fx-alignment: CENTER;"/>
-                <TableColumn fx:id="colDescartar" text="Desc." prefWidth="45" sortable="false" style="-fx-alignment: CENTER;"/>
+                <TableColumn fx:id="colDescartar" text="Desc." prefWidth="60" minWidth="60" sortable="false" style="-fx-alignment: CENTER;"/>
             </columns>
         </TableView>
     </center>

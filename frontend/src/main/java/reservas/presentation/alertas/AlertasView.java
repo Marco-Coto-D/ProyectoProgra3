@@ -8,9 +8,9 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import reservas.logic.Reserva;
+import reservas.presentation.Confirmacion;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 public class AlertasView {
@@ -55,12 +55,7 @@ public class AlertasView {
     }
 
     public boolean confirmar(String mensaje) {
-        Alert alerta = new Alert(Alert.AlertType.CONFIRMATION, mensaje);
-        alerta.setTitle("Descartar alerta");
-        alerta.setHeaderText(null);
-        asociarAVentana(alerta);
-        Optional<ButtonType> respuesta = alerta.showAndWait();
-        return respuesta.isPresent() && respuesta.get() == ButtonType.OK;
+        return Confirmacion.confirmar(root, "Descartar alerta", mensaje);
     }
 
     private void asociarAVentana(Alert alerta) {

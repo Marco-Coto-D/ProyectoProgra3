@@ -55,33 +55,36 @@ public class CategoriaRecursoDao {
         return categorias;
     }
 
-    public void create(CategoriaRecurso c){
-        try {
-            String sql = "insert into categoria_recurso (id, descripcion) values (?, ?)";
-            PreparedStatement stm = db.prepareStatement(sql);
-            stm.setString(1, c.getId());
-            stm.setString(2, c.getDescripcion());
-            db.executeUpdate(stm);
-        } catch (SQLException ex) { }
+    public void create(CategoriaRecurso c) throws Exception {
+        String sql = "insert into categoria_recurso (id, descripcion) values (?, ?)";
+        PreparedStatement stm = db.prepareStatement(sql);
+        stm.setString(1, c.getId());
+        stm.setString(2, c.getDescripcion());
+        int count = db.executeUpdate(stm);
+        if (count == 0) {
+            throw new Exception("No se pudo guardar la categoría");
+        }
     }
 
-    public void update(CategoriaRecurso c){
-        try {
-            String sql = "update categoria_recurso set descripcion=? where id=?";
-            PreparedStatement stm = db.prepareStatement(sql);
-            stm.setString(1, c.getDescripcion());
-            stm.setString(2, c.getId());
-            db.executeUpdate(stm);
-        } catch (SQLException ex) { }
+    public void update(CategoriaRecurso c) throws Exception {
+        String sql = "update categoria_recurso set descripcion=? where id=?";
+        PreparedStatement stm = db.prepareStatement(sql);
+        stm.setString(1, c.getDescripcion());
+        stm.setString(2, c.getId());
+        int count = db.executeUpdate(stm);
+        if (count == 0) {
+            throw new Exception("La categoría no existe");
+        }
     }
 
-    public void delete(String id){
-        try {
-            String sql = "delete from categoria_recurso where id=?";
-            PreparedStatement stm = db.prepareStatement(sql);
-            stm.setString(1, id);
-            db.executeUpdate(stm);
-        } catch (SQLException ex) { }
+    public void delete(String id) throws Exception {
+        String sql = "delete from categoria_recurso where id=?";
+        PreparedStatement stm = db.prepareStatement(sql);
+        stm.setString(1, id);
+        int count = db.executeUpdate(stm);
+        if (count == 0) {
+            throw new Exception("No se pudo borrar la categoría");
+        }
     }
 
     public CategoriaRecurso from(ResultSet rs, String alias){

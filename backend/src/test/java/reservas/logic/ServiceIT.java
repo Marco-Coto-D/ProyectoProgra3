@@ -12,6 +12,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -100,6 +101,20 @@ class ServiceIT {
         Exception e = assertThrows(Exception.class, () -> service.cambiarClave("TEST-F001", "clave123", "x".repeat(101)));
         assertEquals("La clave no puede tener más de 100 caracteres", e.getMessage());
         assertEquals("clave123", (new FuncionarioDao()).read("TEST-F001").getClave());
+    }
+
+    @Test
+    void cambiarClaveAVaciaLanzaErrorYNoCambiaNada() {
+        Exception e = assertThrows(Exception.class, () -> service.cambiarClave("TEST-F001", "clave123", "  "));
+        assertEquals("La clave nueva no puede estar vacía", e.getMessage());
+        assertEquals("clave123", (new FuncionarioDao()).read("TEST-F001").getClave());
+    }
+
+    @Test
+    void administradorCambiaSuPropiaClave() throws Exception {
+        service.cambiarClave("TEST-ADMIN", "admin123", "nueva#Admin");
+        assertThrows(Exception.class, () -> service.autenticar("TEST-ADMIN", "admin123"));
+        assertEquals(Rol.ADMINISTRADOR, service.autenticar("TEST-ADMIN", "nueva#Admin").usuario().getRol());
     }
 
     @Test
@@ -669,6 +684,22 @@ class ServiceIT {
     }
 
     @Test
+    void crearReservaSinCategoriasLanzaErrorYNoGuarda() throws Exception {
+        int antes = service.listarMisReservas(sesionF2).size();
+        Exception e = assertThrows(Exception.class, () -> service.crearReserva("TEST-X", LocalDate.of(2030, 3, 4), LocalTime.of(9, 0), LocalTime.of(10, 0), sesionF2, List.of()));
+        assertEquals("Completá actividad, fecha, horario y al menos una categoría", e.getMessage());
+        assertEquals(antes, service.listarMisReservas(sesionF2).size());
+    }
+
+    @Test
+    void crearReservaConActividadEnBlancoOSinFechaLanzaError() {
+        Exception blanco = assertThrows(Exception.class, () -> service.crearReserva("   ", LocalDate.of(2030, 3, 4), LocalTime.of(9, 0), LocalTime.of(10, 0), sesionF2, categoria("TEST-CAT2")));
+        Exception sinFecha = assertThrows(Exception.class, () -> service.crearReserva("TEST-X", null, LocalTime.of(9, 0), LocalTime.of(10, 0), sesionF2, categoria("TEST-CAT2")));
+        assertEquals("Completá actividad, fecha, horario y al menos una categoría", blanco.getMessage());
+        assertEquals("Completá actividad, fecha, horario y al menos una categoría", sinFecha.getMessage());
+    }
+
+    @Test
     void crearReservaSinSesionLanzaError() {
         Exception e = assertThrows(Exception.class, () -> service.crearReserva("TEST-X", LocalDate.of(2030, 1, 10), LocalTime.of(8, 0), LocalTime.of(9, 0), "sesion-inventada", categoria("TEST-CAT1")));
         assertEquals("Tenés que iniciar sesión", e.getMessage());
@@ -701,7 +732,149 @@ class ServiceIT {
         assertEquals(1L, guardadas);
     }
 
-    private void insertarReserva(String id, String actividad, String fecha, String horaInicio, String horaFin, String funcionario, String estado) throws Exception {
+    // ---------- errores de la base que antes se perdían en silencio ----------
+
+    @Test
+    void guardarRecursoConCategoriaInexistenteLanzaErrorYNoGuarda() throws Exception {
+        Recurso nuevo = new Recurso("TEST-R9", "TEST-Sin categoría", new CategoriaRecurso("TEST-CAT-BORRADA", "Borrada"));
+        Exception e = assertThrows(Exception.class, () -> service.guardarRecurso(nuevo, true, sesionAdmin));
+        assertEquals("La categoría seleccionada ya no existe", e.getMessage());
+        assertTrue(service.buscarRecursos("TEST-R9", sesionAdmin).stream().noneMatch(r -> r.getId().equals("TEST-R9")));
+    }
+
+    @Test
+    void editarRecursoAUnaCategoriaInexistenteLanzaErrorYNoCambia() throws Exception {
+        Recurso editado = new Recurso("TEST-R1", "TEST-Otra descripción", new CategoriaRecurso("TEST-CAT-BORRADA", "Borrada"));
+        Exception e = assertThrows(Exception.class, () -> service.guardarRecurso(editado, false, sesionAdmin));
+        assertEquals("La categoría seleccionada ya no existe", e.getMessage());
+        Recurso guardado = service.buscarRecursos("TEST-R1", sesionAdmin).get(0);
+        assertEquals("TEST-Epson aula 12", guardado.getDescripcion());
+        assertEquals("TEST-CAT1", guardado.getCategoria().getId());
+    }
+
+    @Test
+    void recursoDaoConCategoriaInexistenteYaNoSeDaPorGuardado() {
+        Recurso nuevo = new Recurso("TEST-R9", "TEST-Sin categoría", new CategoriaRecurso("TEST-CAT-BORRADA", "Borrada"));
+        Exception e = assertThrows(Exception.class, () -> new reservas.data.mysql.RecursoDao().create(nuevo));
+        assertEquals("No se pudo guardar el recurso", e.getMessage());
+        assertNull(new reservas.data.mysql.RecursoDao().read("TEST-R9"));
+    }
+
+    @Test
+    void editarSinCambiosNoDaError() throws Exception {
+        Recurso recurso = service.buscarRecursos("TEST-R1", sesionAdmin).get(0);
+        assertDoesNotThrow(() -> service.guardarRecurso(recurso, false, sesionAdmin));
+
+        Funcionario funcionario = service.buscarFuncionarios("TEST-F001", sesionAdmin).get(0);
+        assertDoesNotThrow(() -> service.guardarFuncionario(funcionario, false, sesionAdmin));
+
+        CategoriaRecurso categoria = service.buscarCategorias("TEST-CAT1", sesionAdmin).get(0);
+        assertDoesNotThrow(() -> service.guardarCategoria(categoria, sesionAdmin));
+
+        // misma clave que ya tenía
+        assertDoesNotThrow(() -> service.cambiarClave("TEST-F001", "clave123", "clave123"));
+        assertDoesNotThrow(() -> service.cambiarClave("TEST-ADMIN", "admin123", "admin123"));
+
+        assertEquals("TEST-Epson aula 12", service.buscarRecursos("TEST-R1", sesionAdmin).get(0).getDescripcion());
+        assertEquals("Ana López", service.buscarFuncionarios("TEST-F001", sesionAdmin).get(0).getNombre());
+    }
+
+    @Test
+    void editarFuncionarioQueOtraVentanaBorroLanzaError() throws Exception {
+        Funcionario funcionario = service.buscarFuncionarios("TEST-F002", sesionAdmin).get(0);
+        ejecutar("delete from reserva_recurso where reserva = ?", "TEST-RES2");
+        ejecutar("delete from reserva where id = ?", "TEST-RES2");
+        ejecutar("delete from funcionario where id = ?", "TEST-F002");
+        funcionario.setNombre("TEST-Otro nombre");
+        Exception e = assertThrows(Exception.class, () -> service.guardarFuncionario(funcionario, false, sesionAdmin));
+        assertEquals("El funcionario no existe", e.getMessage());
+    }
+
+    @Test
+    void editarCategoriaQueOtraVentanaBorroLanzaError() throws Exception {
+        ejecutar("insert into categoria_recurso (id, descripcion) values (?, ?)", "TEST-CAT9", "TEST-Temporal");
+        CategoriaRecurso categoria = service.buscarCategorias("TEST-CAT9", sesionAdmin).get(0);
+        ejecutar("delete from categoria_recurso where id = ?", "TEST-CAT9");
+        categoria.setDescripcion("TEST-Renombrada");
+        Exception e = assertThrows(Exception.class, () -> service.guardarCategoria(categoria, sesionAdmin));
+        assertEquals("La categoría no existe", e.getMessage());
+        assertTrue(service.buscarCategorias("TEST-Renombrada", sesionAdmin).isEmpty());
+    }
+
+    @Test
+    void borrarLoQueYaNoExisteLanzaError() {
+        Exception recurso = assertThrows(Exception.class, () -> service.borrarRecurso("TEST-NOEXISTE", sesionAdmin));
+        Exception funcionario = assertThrows(Exception.class, () -> service.borrarFuncionario("TEST-NOEXISTE", sesionAdmin));
+        Exception categoria = assertThrows(Exception.class, () -> service.borrarCategoria("TEST-NOEXISTE", sesionAdmin));
+        assertEquals("No se pudo borrar el recurso", recurso.getMessage());
+        assertEquals("No se pudo borrar el funcionario", funcionario.getMessage());
+        assertEquals("No se pudo borrar la categoría", categoria.getMessage());
+    }
+
+    @Test
+    void updateEstadoDeReservaInexistenteLanzaError() {
+        Exception e = assertThrows(Exception.class,
+                () -> new reservas.data.mysql.ReservaDao().updateEstado("TEST-NOEXISTE", EstadoReserva.CANCELADA));
+        assertEquals("La reserva no existe", e.getMessage());
+    }
+
+    @Test
+    void reservaDaoConUnRecursoQueFallaNoDejaNadaEnLaBase() throws Exception {
+        Funcionario f = new FuncionarioDao().read("TEST-F001");
+        Reserva reserva = new Reserva("TEST-RES-FALLA", "TEST-Falla", LocalDate.of(2030, 3, 4), LocalTime.of(9, 0), LocalTime.of(10, 0), f);
+        // el primero se guarda bien, el segundo no existe y la llave foránea lo rechaza
+        reserva.setRecursos(List.of(new Recurso("TEST-R1", "", null), new Recurso("TEST-NOEXISTE", "", null)));
+
+        Exception e = assertThrows(Exception.class, () -> new reservas.data.mysql.ReservaDao().create(reserva));
+
+        assertEquals("No se pudo guardar la reserva", e.getMessage());
+        assertEquals(0, contar("select count(*) from reserva where id = ?", "TEST-RES-FALLA"));
+        assertEquals(0, contar("select count(*) from reserva_recurso where reserva = ?", "TEST-RES-FALLA"));
+    }
+
+    // ---------- estadísticas ----------
+
+    @Test
+    void contarRecursosPorCategoriaCuentaSoloReservasActivas() throws Exception {
+        // TEST-RES1 (activa) usa R1 y R2; TEST-RES2 está cancelada
+        Map<String, Long> conteo = service.contarRecursosPorCategoria(LocalDate.of(2030, 1, 1), LocalDate.of(2030, 1, 31));
+        assertEquals(Map.of("TEST-Proyector portátil", 1L, "TEST-Laboratorio", 1L), conteo);
+    }
+
+    @Test
+    void contarRecursosPorCategoriaUsaLaDescripcionActual() throws Exception {
+        ejecutar("update categoria_recurso set descripcion = ? where id = ?", "TEST-Laboratorio renombrado", "TEST-CAT2");
+        Map<String, Long> conteo = service.contarRecursosPorCategoria(LocalDate.of(2030, 1, 1), LocalDate.of(2030, 1, 31));
+        assertEquals(1L, conteo.get("TEST-Laboratorio renombrado"));
+    }
+
+    @Test
+    void contarActividadesPorSemanaIncluyeSemanasVaciasYNoCuentaCanceladas() throws Exception {
+        Map<String, Long> conteo = service.contarActividadesPorSemana(LocalDate.of(2030, 1, 6), LocalDate.of(2030, 1, 20));
+        assertEquals(List.of("2029-12-31", "2030-01-07", "2030-01-14"), List.copyOf(conteo.keySet()));
+        assertEquals(0L, conteo.get("2029-12-31"));
+        assertEquals(1L, conteo.get("2030-01-07"));
+        assertEquals(0L, conteo.get("2030-01-14"));
+    }
+
+    @Test
+    void estadisticasConPeriodoAlRevesOIncompletoLanzanError() {
+        LocalDate d = LocalDate.of(2030, 1, 31), h = LocalDate.of(2030, 1, 1);
+        assertEquals("'Hasta' debe ser posterior a 'Desde'", assertThrows(Exception.class, () -> service.contarRecursosPorCategoria(d, h)).getMessage());
+        assertEquals("'Hasta' debe ser posterior a 'Desde'", assertThrows(Exception.class, () -> service.contarActividadesPorSemana(d, h)).getMessage());
+        assertEquals("Seleccioná ambas fechas", assertThrows(Exception.class, () -> service.contarRecursosPorCategoria(null, h)).getMessage());
+        assertEquals("Seleccioná ambas fechas", assertThrows(Exception.class, () -> service.contarActividadesPorSemana(d, null)).getMessage());
+    }
+
+    private long contar(String sql, String parametro) throws Exception {
+        PreparedStatement stm = Database.instance().prepareStatement(sql);
+        stm.setString(1, parametro);
+        java.sql.ResultSet rs = stm.executeQuery();
+        rs.next();
+        return rs.getLong(1);
+    }
+
+    private void insertarReserva(String id,String actividad, String fecha, String horaInicio, String horaFin, String funcionario, String estado) throws Exception {
         ejecutar("insert into reserva (id, actividad, fecha, hora_inicio, hora_fin, funcionario, estado) values (?, ?, ?, ?, ?, ?, ?)", id, actividad, fecha, horaInicio, horaFin, funcionario, estado);
     }
 

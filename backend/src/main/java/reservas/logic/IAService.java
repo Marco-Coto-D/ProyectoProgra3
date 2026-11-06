@@ -13,8 +13,10 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 public class IAService {
-    // la clave no se sube a github, el archivo esta en el .gitignore
+    // la clave de OpenRouter esta en este archivo
     public static final String PROPERTIES_FILE_NAME = "/ia.properties";
+    public static final String SIN_RESPUESTA = "no hubo respuesta en este momento (servicio ocupado o se llegó al límite diario de consultas). "
+            + "Probá de nuevo en un rato o llená el formulario a mano.";
 
     public DatosReservaIA extraer(String frase, List<CategoriaRecurso> categoriasDisponibles) throws Exception {
         String listaCategorias = categoriasDisponibles.stream()
@@ -29,7 +31,14 @@ public class IAService {
 
         ReservaExtractorService aiService = AiServices.create(ReservaExtractorService.class, modelo);
 
-        ReservaExtraccion resultado = aiService.extraer(frase, listaCategorias, LocalDate.now().toString());
+        ReservaExtraccion resultado;
+        try {
+            resultado = aiService.extraer(frase, listaCategorias, LocalDate.now().toString());
+        } catch (Exception e) {
+            // el detalle tecnico queda en la consola del Backend, al usuario le llega un mensaje claro
+            System.out.println("Error de la IA: " + e.getMessage());
+            throw new Exception(SIN_RESPUESTA);
+        }
 
         String actividad     = resultado.getActividad();
         LocalDate fecha      = ParseoSeguro.parsearFecha(resultado.getFecha());

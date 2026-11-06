@@ -35,13 +35,14 @@ public class PdfUtil {
         Document documento = new Document(new PdfDocument(new PdfWriter(archivo)));
         documento.add(new Paragraph(titulo).setBold().setFontSize(14));
 
-        Table tabla = new Table(encabezados.size());
+        // todo el ancho de la hoja, y sin cortar palabras en el guion: si no, "2026-11-04" sale en dos renglones
+        Table tabla = new Table(encabezados.size()).useAllAvailableWidth();
         for (String enc : encabezados) {
-            tabla.addHeaderCell(new Cell().add(new Paragraph(enc).setBold()));
+            tabla.addHeaderCell(new Cell().add(celda(enc).setBold()));
         }
         for (List<String> fila : filas) {
             for (String celda : fila) {
-                tabla.addCell(new Cell().add(new Paragraph(celda != null ? celda : "")));
+                tabla.addCell(new Cell().add(celda(celda != null ? celda : "")));
             }
         }
         documento.add(tabla);
@@ -54,5 +55,11 @@ public class PdfUtil {
         documento.close();
 
         Desktop.getDesktop().open(archivo);
+    }
+
+    // solo se corta de renglón en los espacios (iText también corta en los guiones)
+    private static Paragraph celda(String texto) {
+        return new Paragraph(texto).setSplitCharacters((linea, i) ->
+                linea.get(i).hasValidUnicode() && Character.isWhitespace(linea.get(i).getUnicode()));
     }
 }

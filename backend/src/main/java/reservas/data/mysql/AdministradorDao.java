@@ -27,14 +27,15 @@ public class AdministradorDao {
         return null;
     }
 
-    public void update(Administrador a){
-        try {
-            String sql = "update administrador set clave=? where id=?";
-            PreparedStatement stm = db.prepareStatement(sql);
-            stm.setString(1, a.getClave());
-            stm.setString(2, a.getId());
-            db.executeUpdate(stm);
-        } catch (SQLException ex) { }
+    public void update(Administrador a) throws Exception {
+        String sql = "update administrador set clave=? where id=?";
+        PreparedStatement stm = db.prepareStatement(sql);
+        stm.setString(1, a.getClave());
+        stm.setString(2, a.getId());
+        int count = db.executeUpdate(stm);
+        if (count == 0) {
+            throw new Exception("El administrador no existe");
+        }
     }
 
     private Administrador from(ResultSet rs, String alias){

@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class BackendProxy {
     // lo que ve el usuario si se cae la conexión, en vez de "Connection reset" o "Broken pipe"
@@ -139,6 +140,20 @@ public class BackendProxy {
     public List<Reserva> listarReservasEntre(LocalDate desde, LocalDate hasta) throws Exception {
         Respuesta respuesta = enviar(new Peticion(Operacion.LISTAR_RESERVAS_ENTRE, desde, hasta));
         return (List<Reserva>) respuesta.getResultado();
+    }
+
+    /** CONTAR_RECURSOS_POR_CATEGORIA(desde, hasta): descripción de la categoría -> cantidad */
+    @SuppressWarnings("unchecked")
+    public Map<String, Long> contarRecursosPorCategoria(LocalDate desde, LocalDate hasta) throws Exception {
+        Respuesta respuesta = enviar(new Peticion(Operacion.CONTAR_RECURSOS_POR_CATEGORIA, desde, hasta));
+        return (Map<String, Long>) respuesta.getResultado();
+    }
+
+    /** CONTAR_ACTIVIDADES_POR_SEMANA(desde, hasta): lunes de cada semana -> cantidad */
+    @SuppressWarnings("unchecked")
+    public Map<String, Long> contarActividadesPorSemana(LocalDate desde, LocalDate hasta) throws Exception {
+        Respuesta respuesta = enviar(new Peticion(Operacion.CONTAR_ACTIVIDADES_POR_SEMANA, desde, hasta));
+        return (Map<String, Long>) respuesta.getResultado();
     }
 
     /** CREAR_RESERVA(actividad, fecha, horaInicio, horaFin, categorias) */
